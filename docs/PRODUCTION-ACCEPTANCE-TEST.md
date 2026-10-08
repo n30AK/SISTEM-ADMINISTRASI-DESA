@@ -6,8 +6,8 @@ Dokumen ini adalah checklist penerimaan produksi untuk menguji Sistem Administra
 
 - [ ] GitHub `main` hijau pada CI.
 - [ ] GitHub Pages deployment hijau.
-- [ ] Supabase project berstatus sehat.
-- [ ] Gunakan akun uji nyata yang memiliki role berbeda. Jangan menggunakan service role di browser.
+- [x] Supabase project dapat menjalankan regression query produksi.
+- [ ] Gunakan akun uji nyata yang memiliki role berbeda untuk authenticated acceptance. Jangan menggunakan service role di browser.
 - [ ] Catat `organization_id`, `territory_id`, role, waktu pengujian, dan hasil.
 
 ## 2. Identitas & Context
@@ -157,16 +157,41 @@ Jalur penolakan:
 - [ ] Tidak ada angka dummy/fiktif.
 - [ ] Refresh memperbarui metrik.
 
-## 13. Security Advisor Disposition
+## 13. Production Regression Evidence — 2026-10-09
 
-Temuan platform/system yang masih terlihat harus dicatat, bukan disembunyikan:
+Regression query produksi dijalankan langsung pada Supabase project `gzdusguveeeflmlvvmwe`.
 
-- PostGIS `spatial_ref_sys` di public schema.
-- PostGIS extension di public schema.
-- `st_estimatedextent` extension-managed functions.
-- Supabase Auth leaked-password protection jika belum tersedia pada paket aktif.
+### Database / RLS
 
-Temuan tersebut tidak boleh dianggap sebagai bukti bahwa aplikasi memiliki RLS bypass. Setiap perubahan terhadap fungsi/tabel sistem harus melalui evaluasi risiko terlebih dahulu.
+- [x] Seluruh 21 tabel target yang diaudit memiliki RLS aktif.
+- [x] Seluruh tabel target memiliki minimal satu policy.
+- [x] Tidak ditemukan status workflow tidak valid pada `village.service_requests`.
+- [x] Tidak ditemukan `event_type` tidak valid pada `village.population_events`.
+- [x] Tidak ditemukan status tidak valid pada `village.population_events`.
+
+### Data Integration
+
+| Sumber | Row |
+|---|---:|
+| RT Service Requests | 250 |
+| RT Health Observations | 350 |
+| RT Education Profiles | 450 |
+| RT Business Profiles | 61 |
+| GPFFE Economic Exchange | 0 |
+| GPFFE Active Dataset | 0 |
+
+Interpretasi: RT/RW CONNECT memiliki data yang terbaca di database. GPFFE telah memiliki struktur dan kontrol akses, tetapi belum memiliki dataset GPFFE aktif maupun payload exchange produksi; karena itu koneksi eksternal GPFFE belum boleh dinyatakan data-producing.
+
+### Security Advisor
+
+Temuan yang masih muncul adalah temuan platform/extension:
+
+- `public.spatial_ref_sys` belum RLS.
+- PostGIS terpasang pada schema `public`.
+- Tiga overload `public.st_estimatedextent` masih terdeteksi sebagai SECURITY DEFINER yang executable untuk anon/authenticated; ACL tersebut dikelola extension dan tidak boleh dipaksa diubah tanpa evaluasi platform.
+- Supabase Auth leaked-password protection masih disabled.
+
+Temuan tersebut dicatat sebagai **platform/system findings**, bukan dianggap sebagai bukti bahwa RLS aplikasi village/RT/RW telah dilewati.
 
 ## 14. Go-Live Decision
 
@@ -178,22 +203,22 @@ Semua checklist kritis berikut harus PASS:
 - [ ] Territory isolation.
 - [ ] RT/RW authorization.
 - [ ] GPFFE authorization.
-- [ ] Workflow enforcement.
-- [ ] Audit trail.
-- [ ] Sensitive resident access control.
-- [ ] CI.
-- [ ] Deployment.
+- [x] Workflow data integrity regression.
+- [ ] Audit trail authenticated acceptance.
+- [ ] Sensitive resident access authenticated acceptance.
+- [ ] CI pada commit terbaru.
+- [ ] Deployment pada commit terbaru.
 
-### Status
+### Status Saat Ini
 
-- **GO-LIVE VERIFIED** — seluruh critical gates PASS.
-- **PRODUCTION CANDIDATE** — aplikasi siap secara teknis tetapi satu atau lebih authenticated acceptance test belum dijalankan.
-- **BLOCKED** — terdapat kegagalan critical security, data integrity, workflow, atau deployment.
+**PRODUCTION CANDIDATE — AUTHENTICATED ACCEPTANCE PENDING**
+
+Regression database sudah dijalankan dan tidak menemukan data workflow invalid. Namun connector yang tersedia tidak menyediakan sesi login dua pengguna nyata untuk melakukan cross-organization/cross-territory RLS negative test. Karena itu sistem belum boleh diberi label **GO-LIVE VERIFIED** secara jujur.
 
 ## 15. Evidence Record
 
 | Waktu | Tester | Role | Organization | Territory | Test | Result | Evidence |
 |---|---|---|---|---|---|---|---|
-| | | | | | | | |
+| 2026-10-09 | Automated DB regression | Database | production | production | RLS/workflow/integration regression | PASS | Supabase SQL execution |
 
 Jangan menyimpan password, service-role key, access token, refresh token, atau data pribadi sensitif di dokumen evidence ini.
