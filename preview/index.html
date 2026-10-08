@@ -147,7 +147,7 @@ async function regulatoryCenter(){
 }
 async function populationCenter(view){
  document.getElementById('title').textContent=labels[view];
- const {data,error}=await sb.schema('village').rpc('population_summary');
+ const {data,error}=await sb.schema('village').from('population_aggregates').select('total_households,active_households,total_persons,linked_persons').maybeSingle();
  if(error){document.getElementById('content').innerHTML='<div class="notice danger">Data agregat penduduk belum dapat dibaca: '+esc(error.message)+'</div>';return}
  const x=data?.[0]||{total_households:0,active_households:0,total_persons:0,linked_persons:0};
  const isPerson=view==='penduduk';
