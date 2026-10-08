@@ -38,3 +38,29 @@ drop policy if exists service_requests_org_access on village.service_requests;
 create policy service_requests_org_access on village.service_requests for all to authenticated using (village.user_has_org(organization_id)) with check (village.user_has_org(organization_id));
 drop policy if exists service_request_events_org_access on village.service_request_events;
 create policy service_request_events_org_access on village.service_request_events for all to authenticated using (village.user_has_org(organization_id)) with check (village.user_has_org(organization_id));
+
+
+-- Keep workflow timestamps and append an immutable status transition event.
+create or replace function village.touch_service_request()
+returns trigger
+language plpgsql
+security invoker
+set search_path = village, public
+as $$
+begin
+  new.updated_at := now();
+  if tg_op = 'UPDATE' and new.status is distinct from old.status then
+    insert into village.service_request_events (
+      request_id, organization_id, from_status, to_status, note, actor_user_id
+    ) values (
+      new.id, new.organization_id, old.status, new.status, null, auth.uid()
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_service_request_touch on village.service_requests;
+create trigger trg_service_request_touch
+before update on village.service_requests
+for each row execute function village.touch_service_request();
