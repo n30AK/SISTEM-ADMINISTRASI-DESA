@@ -178,9 +178,9 @@ Regression query produksi dijalankan langsung pada Supabase project `gzdusguveee
 | RT Education Profiles | 450 |
 | RT Business Profiles | 61 |
 | GPFFE Economic Exchange | 0 |
-| GPFFE Active Dataset | 0 |
+| GPFFE Active Dataset | 5 |
 
-Interpretasi: RT/RW CONNECT memiliki data yang terbaca di database. GPFFE telah memiliki struktur dan kontrol akses, tetapi belum memiliki dataset GPFFE aktif maupun payload exchange produksi; karena itu koneksi eksternal GPFFE belum boleh dinyatakan data-producing.
+Interpretasi: RT/RW CONNECT memiliki data yang terbaca di database. GPFFE telah memiliki struktur dan kontrol akses serta 5 dataset aktif terdeteksi. Namun `gpffe_economic_exchange` masih 0 baris, sehingga koneksi eksternal GPFFE belum boleh dinyatakan data-producing.
 
 ### Security Advisor
 
