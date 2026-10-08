@@ -21,7 +21,7 @@ Deno.serve(async (req: Request) => {
     return { count: count ?? 0, available: !error, error: error?.message ?? null };
   };
 
-  const [core, requests, documents, sync, villageProfiles, officials, letters, services, assets, budgets, programs] =
+  const [core, requests, documents, sync, villageProfiles, officials, letters, services, assets, budgets, programs, citizens, households, territories] =
     await Promise.all([
       supabase.from("platform_core").select("platform_name,platform_version,environment").limit(1).maybeSingle(),
       count("demo_requests"),
@@ -55,6 +55,9 @@ Deno.serve(async (req: Request) => {
         budgets: budgets.count,
         programs: programs.count,
       },
+      citizens: citizens.count,
+      households: households.count,
+      territories: territories.count,
     },
   }), {
     headers: { ...cors, "Content-Type": "application/json; charset=utf-8" },
