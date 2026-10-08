@@ -16,17 +16,25 @@ Deno.serve(async (req: Request) => {
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
 
-  const count = async (table: string) => {
-    const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true });
-    return { count: count ?? 0, error: error?.message ?? null };
+  const count = async (table: string, schema = "public") => {
+    const { count, error } = await supabase.schema(schema).from(table).select("*", { count: "exact", head: true });
+    return { count: count ?? 0, available: !error, error: error?.message ?? null };
   };
 
-  const [core, requests, documents, sync] = await Promise.all([
-    supabase.from("platform_core").select("platform_name,platform_version,environment").limit(1).maybeSingle(),
-    count("demo_requests"),
-    count("demo_documents"),
-    count("opensid_sync_batches"),
-  ]);
+  const [core, requests, documents, sync, villageProfiles, officials, letters, services, assets, budgets, programs] =
+    await Promise.all([
+      supabase.from("platform_core").select("platform_name,platform_version,environment").limit(1).maybeSingle(),
+      count("demo_requests"),
+      count("demo_documents"),
+      count("opensid_sync_batches"),
+      count("profiles", "village"),
+      count("officials", "village"),
+      count("letters", "village"),
+      count("services", "village"),
+      count("assets", "village"),
+      count("budgets", "village"),
+      count("programs", "village"),
+    ]);
 
   return new Response(JSON.stringify({
     status: "ok",
@@ -38,6 +46,15 @@ Deno.serve(async (req: Request) => {
       demo_requests: requests.count,
       demo_documents: documents.count,
       opensid_sync_batches: sync.count,
+      village: {
+        profiles: villageProfiles.count,
+        officials: officials.count,
+        letters: letters.count,
+        services: services.count,
+        assets: assets.count,
+        budgets: budgets.count,
+        programs: programs.count,
+      },
     },
   }), {
     headers: { ...cors, "Content-Type": "application/json; charset=utf-8" },
