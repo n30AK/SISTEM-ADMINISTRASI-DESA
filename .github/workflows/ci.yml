@@ -18,4 +18,26 @@ jobs:
           set -e
           find app config public src bin -type f -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Build production image
-        run: docker build -t sistem-administrasi-desa:ci .
+        run: docker build -t sistem-administrasi-desa:ci
+
+  production-acceptance-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate production acceptance suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s docs/PRODUCTION-ACCEPTANCE-TEST.md
+          test -s database/migrations/20261008210000_harden_context_security.sql
+          test -s database/migrations/20261008235000_harden_service_request_workflow.sql
+          test -s database/migrations/20261008234000_harden_population_events_workflow.sql
+          grep -q 'GO-LIVE VERIFIED' docs/PRODUCTION-ACCEPTANCE-TEST.md
+          grep -q 'AUTHENTICATED ACCEPTANCE PENDING' docs/PRODUCTION-ACCEPTANCE-TEST.md
+          grep -q 'RLS' docs/PRODUCTION-ACCEPTANCE-TEST.md
+          grep -q 'GPFFE' docs/PRODUCTION-ACCEPTANCE-TEST.md
+          grep -q 'RT/RW CONNECT' docs/PRODUCTION-ACCEPTANCE-TEST.md
+          grep -q 'soft-delete' docs/PRODUCTION-ACCEPTANCE-TEST.md
+          grep -q 'my_context' database/migrations/20261008210000_harden_context_security.sql
+          grep -q 'status' database/migrations/20261008235000_harden_service_request_workflow.sql
+          grep -q 'event_type' database/migrations/20261008234000_harden_population_events_workflow.sql
