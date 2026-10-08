@@ -1,0 +1,8 @@
+-- Regulatory update: Permendagri 2/2026
+insert into public.ai_regulations(regulation_type,regulation_number,regulation_year,title,issuer,status,effective_date,source_url,summary,affected_modules)
+values('Permendagri','2',2026,'Pengelolaan Layanan Informasi Publik di Kementerian Dalam Negeri, Pemerintah Daerah, dan Pemerintah Desa','Kementerian Dalam Negeri','BERLAKU','2026-02-02','https://peraturan.bpk.go.id/Details/345979/permendagri-no-2-tahun-2026','Mengatur jenis informasi publik, pengelolaan layanan informasi, lembaga pengelola, pemantauan, evaluasi, pelaporan, pembinaan dan pengawasan termasuk Pemerintah Desa.',array['Informasi Publik','Pelayanan','Kepatuhan'])
+on conflict(regulation_type,regulation_number,regulation_year) do update set status='BERLAKU',effective_date=excluded.effective_date,source_url=excluded.source_url,summary=excluded.summary,affected_modules=excluded.affected_modules,updated_at=now();
+insert into public.ai_regulatory_obligations(regulation_id,obligation_code,obligation_title,obligation_text,module_code,responsible_roles,evidence_types,risk_level,guidance)
+select id,'PUBINFO-002','Kelola layanan informasi publik Desa','Pemerintah Desa perlu memiliki pengelolaan layanan informasi publik, klasifikasi informasi, pemantauan, evaluasi dan pelaporan sesuai ketentuan yang berlaku.','Informasi Publik',array['OPERATOR_DESA','VILLAGE_VALIDATOR'],array['public_information_list','request_record','response_record','report'],'HIGH','Pisahkan data pribadi warga dari informasi publik yang dipublikasikan.'
+from public.ai_regulations where regulation_type='Permendagri' and regulation_number='2' and regulation_year=2026
+on conflict(obligation_code) do nothing;
