@@ -18,7 +18,7 @@ jobs:
           set -e
           find app config public src bin -type f -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Build production image
-        run: docker build -t sistem-administrasi-desa:ci
+        run: docker build -t sistem-administrasi-desa:ci .
 
   production-acceptance-static:
     runs-on: ubuntu-latest
