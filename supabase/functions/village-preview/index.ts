@@ -33,7 +33,7 @@ Deno.serve(async (req: Request) => {
       count("services", "village"),
       count("assets", "village"),
       count("budgets", "village"),
-      count("programs", "village"),
+      count("programs", "village"), count("citizen_profiles"), count("households"), count("territories"),
     ]);
 
   return new Response(JSON.stringify({
