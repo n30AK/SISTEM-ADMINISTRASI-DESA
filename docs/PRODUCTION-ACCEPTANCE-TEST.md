@@ -128,7 +128,7 @@ Jalur penolakan:
 - [ ] Identitas desa dapat dibaca sesuai scope.
 - [ ] Perubahan konfigurasi hanya dapat dilakukan role yang berwenang.
 - [ ] Organization/territory tidak dapat dipindahkan oleh client melalui manipulasi payload.
-- [ ] Perubahan konfigurasi tercatat.
+- [x] Trigger audit database terpasang untuk INSERT/UPDATE/DELETE konfigurasi; authenticated acceptance masih wajib.
 
 ## 11. UI / UX Acceptance
 
