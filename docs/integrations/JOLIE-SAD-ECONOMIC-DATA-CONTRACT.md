@@ -1,6 +1,6 @@
 # Kontrak Integrasi Ekonomi JOLIE ↔ RT/RW CONNECT ↔ SAD
 
-Status: **Rancangan kontrak v1 — belum merupakan endpoint produksi aktif**.
+Status: **Kontrak v1 dan endpoint penerima sudah dibuat; integrasi produksi masih terkunci sampai rahasia dan pemetaan tenant disiapkan serta diuji**.
 
 ## 1. Keputusan arsitektur
 
@@ -35,7 +35,7 @@ Metrik penjualan tidak otomatis menjadi bukti realisasi APB Desa. Keterkaitan de
 
 ## 4. API v1 yang diusulkan
 
-Rute konseptual, **belum aktif sampai backend dibuat, dikonfigurasi, dan diuji**:
+Endpoint telah dideploy ke Supabase sebagai economic-evidence-ingest dengan autentikasi HMAC khusus. Endpoint tetap fail-closed dan belum siap menerima event produksi sampai secret diverifikasi, mapping tenant disetujui, dan uji penerimaan lulus:
 
     POST /functions/v1/economic-evidence-ingest
 
@@ -178,4 +178,4 @@ Tidak ada sistem yang boleh menimpa sumber kebenaran domain lain melalui sinkron
 
 ## 12. Status saat ini
 
-Dokumen ini menetapkan kontrak dan prinsip arsitektur. Ini **bukan bukti endpoint sudah berjalan**. Belum ada secret yang dibuat, endpoint yang diterbitkan, tenant yang dipetakan, atau data bisnis produksi yang dipertukarkan oleh perubahan dokumen ini.
+Kontrak, tabel inbox/mapping, trigger audit, dan endpoint economic-evidence-ingest sudah dibuat. Tabel mapping saat verifikasi masih kosong dan inbox belum berisi event. Keberadaan endpoint bukan bukti integrasi aktif: secret HMAC harus dikonfigurasi dan diverifikasi, mapping tenant harus disetujui, lalu tes negatif/positif harus lulus. Jangan kirim data produksi sebelum semua prasyarat itu terpenuhi.
