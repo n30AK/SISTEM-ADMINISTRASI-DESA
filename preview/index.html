@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sistem Administrasi Desa — Operasional</title>
 <link rel="stylesheet" href="assets/app.css"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
 .auth{max-width:460px;margin:8vh auto}.auth .panel{padding:24px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#52606d}.field input,.field select,.field textarea{border:1px solid #d9e2ec;border-radius:8px;padding:10px;background:#fff;font:inherit}.field textarea{min-height:110px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.form-actionbar{position:sticky;bottom:0;z-index:5;background:rgba(255,255,255,.97);border-top:1px solid #d9e2ec;padding:12px 0;margin-top:20px;box-shadow:0 -4px 14px rgba(15,23,42,.08)}.muted{color:#697586;font-size:12px}.danger{color:#a33}.success{color:#13795b}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.toolbar .left,.toolbar .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:9px 12px;cursor:pointer}.btn.primary{background:#173b57;color:#fff;border-color:#173b57}.btn.danger{border-color:#e2a8a8}.notice{padding:12px 14px;border-radius:9px;background:#eef6ff;border:1px solid #cfe3f8;margin-bottom:14px}.statuspill{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2f7;font-size:11px;font-weight:700}.tablewrap table{min-width:780px}.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}.modalcard{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}@media(max-width:700px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.module-split{grid-template-columns:1fr!important}.module-form{position:static!important}} .module-split{display:grid;grid-template-columns:minmax(360px,.9fr) minmax(460px,1.1fr);gap:16px;align-items:start}.module-list{min-width:0}.module-form{min-width:0;position:sticky;top:12px;max-height:calc(100vh - 32px);overflow:auto}.module-form .panel{box-shadow:0 6px 22px rgba(15,23,42,.06)} .scope-card{cursor:pointer;text-align:left;font:inherit;width:100%;color:inherit}.scope-card:hover{border-color:#173b57;box-shadow:0 4px 14px rgba(15,23,42,.08)}.module-form .form-actionbar{position:sticky;bottom:0}.sidebar nav{display:block;max-height:calc(100vh - 150px);overflow-y:auto;padding-right:4px}.nav-group{margin:4px 0;border:1px solid rgba(255,255,255,.12);border-radius:9px;overflow:hidden}.nav-group summary{cursor:pointer;list-style:none;padding:10px 11px;font-size:12px;font-weight:800;color:#fff;letter-spacing:.02em}.nav-group summary::-webkit-details-marker{display:none}.nav-group summary:after{content:'＋';float:right;opacity:.7}.nav-group[open] summary:after{content:'−'}.nav-submenu{display:grid;gap:2px;padding:0 5px 6px}.nav-submenu a{font-size:12px;padding:8px 10px}.nav-submenu a.active{background:#2c6e91}.scope-card small:last-child{color:#17658a;font-weight:700}.data-source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.data-source-card{display:block;border:1px solid #d6dee7;border-radius:14px;padding:16px;background:#fff;color:#17202a;text-decoration:none}.data-source-card:hover{border-color:#2c6e91;box-shadow:0 8px 20px rgba(16,42,67,.08)}.data-source-card strong{display:block;font-size:26px;margin:8px 0}.data-source-card small{display:block;color:#52606d;line-height:1.5}@media(max-width:850px){.sidebar{width:220px}main{margin-left:220px;width:calc(100% - 220px);padding:20px}}
 </style>
@@ -177,8 +178,9 @@ async function listModule(key){
     msg.textContent='Organisasi atau wilayah aktif belum valid. Data RT/RW CONNECT tidak dimuat.';
     document.getElementById('content').prepend(msg);return;
    }
-   scopeRefreshMessage='';
+   scopeRefreshMessage='Wilayah '+(context?.territory_name||'aktif')+' dimuat ulang. Daftar '+(cfg[key]?.title||'modul')+' tetap dibatasi pada organisasi dan wilayah ini.';
    await listModule(key);
+   scopeRefreshMessage='';
   };
  }
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
@@ -358,7 +360,45 @@ async function rtRwModule(view){
  const territoryId=normalizeScopeId(context?.territory_id),organizationId=normalizeScopeId(context?.organization_id);
  if(!territoryId||!organizationId){host.innerHTML='<div class="notice danger">Konteks organisasi/wilayah tidak valid.</div>';return}
  host.innerHTML='<div class="notice">Memuat data '+esc(m.title)+' untuk '+esc(context.territory_name||'wilayah aktif')+'…</div>';
- if(m.gis){const [summaryResult,infra,environment]=await Promise.all([sb.schema('village').rpc('population_summary'),sb.schema('public').from('rt_infrastructure_assets').select('id',{count:'exact',head:true}).eq('territory_id',territoryId),sb.schema('public').from('rt_environment_issues').select('id',{count:'exact',head:true}).eq('territory_id',territoryId)]);const x=Array.isArray(summaryResult.data)?summaryResult.data[0]:summaryResult.data;const results=[{label:'Rumah Tangga',count:x?.total_households,error:summaryResult.error},{label:'Penduduk Aktif',count:x?.total_persons,error:summaryResult.error},{label:'Infrastruktur',count:infra.count,error:infra.error},{label:'Isu Lingkungan',count:environment.count,error:environment.error}];host.innerHTML='<div class="notice '+(results.some(r=>r.error)?'danger':'success')+'"><b>Peta Wilayah & GIS · '+esc(context.territory_name||'wilayah aktif')+'</b><br>Ringkasan lapisan data aman sesuai wilayah aktif. Data alamat rinci, koordinat, dan identitas warga tidak ditampilkan karena dilindungi kebijakan akses. Tampilan ini adalah ringkasan lapisan; peta visual memerlukan geometri/koordinat yang tervalidasi dan endpoint GIS khusus.</div><section class="grid">'+results.map(r=>'<div class="card"><span>'+esc(r.label)+'</span><strong>'+(r.error||r.count===undefined||r.count===null?'—':esc(r.count))+'</strong><small>'+(r.error?'Data tidak dapat dibaca: '+esc(r.error.message||r.error):'Agregat untuk wilayah aktif')+'</small></div>').join('')+'</section><div class="actions"><a class="btn" href="?view=rtinfrastruktur">Buka Infrastruktur</a><a class="btn" href="?view=rtlingkungan">Buka Isu Lingkungan</a><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan</a></div>';return}
+ if(m.gis){
+  const [summaryResult,infra,environment,layersResult]=await Promise.all([
+   sb.schema('village').rpc('population_summary'),
+   sb.schema('public').from('rt_infrastructure_assets').select('id',{count:'exact',head:true}).eq('territory_id',territoryId),
+   sb.schema('public').from('rt_environment_issues').select('id',{count:'exact',head:true}).eq('territory_id',territoryId),
+   sb.schema('village').rpc('gis_demo_layers')
+  ]);
+  const x=Array.isArray(summaryResult.data)?summaryResult.data[0]:summaryResult.data;
+  const results=[
+   {label:'Rumah Tangga',count:x?.total_households,error:summaryResult.error},
+   {label:'Penduduk Aktif',count:x?.total_persons,error:summaryResult.error},
+   {label:'Infrastruktur RT/RW',count:infra.count,error:infra.error},
+   {label:'Isu Lingkungan RT/RW',count:environment.count,error:environment.error}
+  ];
+  const demoLayers=Array.isArray(layersResult.data)?layersResult.data:[];
+  host.innerHTML='<div class="notice '+(results.some(r=>r.error)?'danger':'success')+'"><b>Peta Wilayah & GIS · '+esc(context.territory_name||'wilayah aktif')+'</b><br>Peta interaktif memakai OpenStreetMap. Ringkasan RT/RW CONNECT mengikuti organisasi dan wilayah aktif. Batas yang tersedia saat ini hanya geometri demonstrasi tervalidasi—bukan batas resmi Desa Pilot. Geometri resmi belum dapat dipasangkan dengan wilayah aktif; karena itu tidak ditampilkan seolah-olah batas nyata.</div>'+
+   '<div class="panel"><div class="panelhead"><div><span class="eyebrow">PETA INTERAKTIF</span><h2>Lapisan Wilayah RT/RW</h2></div><span class="statuspill">Konteks: '+esc(context.territory_name||'Aktif')+'</span></div>'+
+   '<div class="actions" style="margin:0 0 12px"><label class="btn"><input id="toggleDemoLayers" type="checkbox" style="margin-right:8px">Tampilkan geometri DEMO (bukan batas resmi)</label><button class="btn" id="fitDemoLayers" type="button">Fokus ke lapisan demo</button><button class="btn" id="resetMapView" type="button">Lihat Indonesia</button></div>'+
+   '<div id="sadMap" role="application" aria-label="Peta interaktif wilayah RT RW" style="height:430px;min-height:320px;border:1px solid #d6dee7;border-radius:12px;z-index:0"></div>'+
+   '<p id="mapStatus" class="muted" role="status">Memuat peta dan memvalidasi lapisan…</p>'+
+   '<div class="notice"><b>Privasi:</b> peta tidak menampilkan titik alamat rumah atau koordinat penduduk individual. Lapisan RT/RW demo hanya untuk menguji interaksi peta.</div></div>'+
+   '<section class="grid">'+results.map(r=>'<div class="card"><span>'+esc(r.label)+'</span><strong>'+(r.error||r.count===undefined||r.count===null?'—':esc(r.count))+'</strong><small>'+(r.error?'Data tidak dapat dibaca: '+esc(r.error.message||r.error):'Agregat sesuai wilayah aktif')+'</small></div>').join('')+'</section>'+
+   '<div class="actions"><a class="btn" href="?view=rtinfrastruktur">Buka Infrastruktur</a><a class="btn" href="?view=rtlingkungan">Buka Isu Lingkungan</a><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan RT/RW</a></div>';
+  const mapStatus=document.getElementById('mapStatus');
+  try{
+   const leafletModule=await import('https://esm.sh/leaflet@1.9.4');
+   const L=leafletModule.default||leafletModule;
+   const map=L.map('sadMap',{scrollWheelZoom:false}).setView([-2.5,118],5);
+   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+   const features=demoLayers.filter(r=>r.geometry_geojson).map(r=>({type:'Feature',geometry:r.geometry_geojson,properties:{name:r.name,level:r.level}}));
+   const demoLayer=L.geoJSON(features,{style:feature=>({color:feature.properties.level==='RT'?'#0f766e':feature.properties.level==='RW'?'#2563eb':'#b45309',weight:2,fillOpacity:.12}),onEachFeature:(feature,layer)=>layer.bindPopup('<b>GEOMETRI DEMO</b><br>'+esc(feature.properties.name)+' ('+esc(feature.properties.level)+')<br><small>Bukan batas administrasi resmi.</small>')});
+   document.getElementById('toggleDemoLayers').onchange=e=>{if(e.target.checked){demoLayer.addTo(map);if(demoLayer.getLayers().length)map.fitBounds(demoLayer.getBounds().pad(.12))}else map.removeLayer(demoLayer)};
+   document.getElementById('fitDemoLayers').onclick=()=>{document.getElementById('toggleDemoLayers').checked=true;demoLayer.addTo(map);if(demoLayer.getLayers().length)map.fitBounds(demoLayer.getBounds().pad(.12));else mapStatus.textContent='Belum ada geometri demo yang valid.'};
+   document.getElementById('resetMapView').onclick=()=>map.setView([-2.5,118],5);
+   mapStatus.textContent=layersResult.error?'Peta dasar aktif; lapisan geometri tidak dapat dimuat: '+layersResult.error.message:(features.length?'Peta siap. '+features.length+' geometri demo tersedia; aktifkan kotak centang untuk melihatnya.':'Peta dasar aktif. Belum ada geometri yang dapat ditampilkan.');
+   setTimeout(()=>map.invalidateSize(),100);
+  }catch(e){mapStatus.textContent='Peta interaktif gagal dimuat. Periksa koneksi internet dan pemblokir konten; ringkasan RT/RW tetap tersedia.'}
+  return
+}
  if(m.summaryField){
   const {data,error}=await sb.schema('village').rpc('population_summary');const x=Array.isArray(data)?data[0]:data;const value=x?.[m.summaryField];
   host.innerHTML='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>'+esc(m.summaryDescription)+'</div><section class="grid"><div class="card"><span>'+esc(m.summaryLabel)+'</span><strong>'+(error||value===undefined||value===null?'—':esc(value))+'</strong><small>Ruang lingkup: '+esc(context.territory_name||'wilayah aktif')+'</small></div><div class="card"><span>ORGANISASI AKTIF</span><strong>'+esc(context.organization_name||'—')+'</strong><small>Perhitungan dibatasi konteks akses.</small></div></section>'+(error?'<div class="notice danger">Gagal membaca ringkasan aman: '+esc(error.message)+'</div>':'')+'<div class="actions"><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan Wilayah</a></div>';
