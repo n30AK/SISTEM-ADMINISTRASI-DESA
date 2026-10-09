@@ -199,6 +199,8 @@ Temuan tersebut dicatat sebagai **platform/system findings**, bukan dianggap seb
 - [x] Receiver Edge Function deployed as economic-evidence-ingest with custom HMAC authentication and fail-closed behavior.
 - [x] Inbox and tenant-mapping tables exist with RLS enabled and no grants to anon/authenticated.
 - [x] INSERT/UPDATE/DELETE audit trigger exists for the economic evidence inbox.
+- [x] Evidence review RPCs use SECURITY INVOKER; SELECT/UPDATE are scoped by RLS policies to active reviewer assignments matching the exact organization and territory.
+- [x] Review updates are column-limited; reviewer identity/time are set by a database trigger and cannot be directly updated by authenticated clients.
 - [x] Scoped review RPCs deployed: authenticated-only execution; active role assignment must match the same organization and territory; review notes required; terminal rejected/superseded records cannot be changed.
 - [x] SAD UI screen added at `?view=buktiEkonomi` for scoped evidence review; runtime acceptance still pending with an authorized reviewer account.
 - [x] Initial production query confirmed tenant mappings = 0 and accepted events = 0.
