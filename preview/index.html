@@ -137,7 +137,7 @@ async function listModule(key){
  const c=cfg[key]; const canCreate=can('data.create'); const canUpdate=can('data.update'); document.getElementById('title').textContent=c.title;
  let query=sb.schema('village').from(c.table).select('*',{count:'exact'}).eq('organization_id',context.organization_id);query=applyTerritoryScope(query).is('deleted_at',null);if(key!=='layanan')query=query.neq('status','DEMO');query=query.order('created_at',{ascending:false}).limit(50);const {data,error,count}=await query;
  const demoCount=(data||[]).filter(row=>row.status==='DEMO'||row.metadata?.is_demo===true||row.administrative_form?.demo===true||['full_name','service_name','budget_name','program_name','asset_name','title','subject','unit_name'].some(field=>String(row[field]||'').startsWith('CONTOH DEMO'))).length;
- let table=(scopeRefreshMessage?'<div id="scopeLoadStatus" class="notice" role="status">'+esc(scopeRefreshMessage)+'</div>':'')+(demoCount?'<div class="notice">MODE DEMONSTRASI: '+demoCount+' record pada daftar ini ditandai sebagai contoh fiktif. Jangan digunakan sebagai data resmi; ganti atau arsipkan sebelum operasional produksi.</div>':'')+'<div class="notice"><b>Data Center '+esc(c.title)+'</b><br>Ringkasan dan daftar data dibatasi pada organisasi serta wilayah aktif. Record berstatus DEMO tidak dihitung sebagai data operasional. Formulir hanya dibuka ketika Anda memilih “＋ Form Baru” atau “Buka”.</div><section class="grid"><div class="card"><span>TOTAL RECORD TERSIMPAN</span><strong>'+esc(error?'—':(count??0))+'</strong><small>Record tersimpan sesuai organisasi dan wilayah aktif; data draf dan demo tetap dihitung.</small></div><div class="card"><span>DITAMPILKAN</span><strong>'+esc((data||[]).length)+'</strong><small>Maksimal 50 record terbaru per halaman.</small></div><div class="card"><span>ORGANISASI AKTIF</span><strong style="font-size:16px;overflow-wrap:anywhere">'+esc(context.organization_name||context.organization_id)+'</strong><small>Konteks akses saat ini.</small></div><button type=\"button\" class=\"card scope-card\" id=\"scopeOpen\" title=\"Muat ulang data sesuai wilayah aktif\"><span>WILAYAH AKTIF</span><strong style=\"font-size:16px;overflow-wrap:anywhere\">'+esc(context.territory_name||context.territory_id)+'</strong><small>Ruang lingkup data yang sedang dibuka.</small><small>↻ Klik untuk memuat ulang modul dan memeriksa data RT/RW CONNECT pada wilayah ini.</small></button></section><div class="toolbar"><div class="left"><span class="statuspill">'+esc(c.table)+'</span></div><div class="right">'+(canCreate?'<button class=\"btn primary\" id=\"new\">＋ Form Baru</button>':'')+'<button class="btn" id="reload">↻ Segarkan</button></div></div>';
+ let table=(scopeRefreshMessage?'<div id="scopeLoadStatus" class="notice" role="status">'+esc(scopeRefreshMessage)+'</div>':'')+(demoCount?'<div class="notice">MODE DEMONSTRASI: '+demoCount+' record pada daftar ini ditandai sebagai contoh fiktif. Jangan digunakan sebagai data resmi; ganti atau arsipkan sebelum operasional produksi.</div>':'')+'<div class="notice"><b>Data Center '+esc(c.title)+'</b><br>Ringkasan dan daftar data dibatasi pada organisasi serta wilayah aktif. Record berstatus DEMO tidak dihitung sebagai data operasional. Formulir hanya dibuka ketika Anda memilih “＋ Form Baru” atau “Buka”.</div><section class="grid"><div class="card"><span>TOTAL RECORD TERSIMPAN</span><strong>'+esc(error?'—':(count??0))+'</strong><small>Record tersimpan sesuai organisasi dan wilayah aktif; data draf dan demo tetap dihitung.</small></div><div class="card"><span>DITAMPILKAN</span><strong>'+esc((data||[]).length)+'</strong><small>Maksimal 50 record terbaru per halaman.</small></div><div class="card"><span>ORGANISASI AKTIF</span><strong style="font-size:16px;overflow-wrap:anywhere">'+esc(context.organization_name||context.organization_id)+'</strong><small>Konteks akses saat ini.</small></div><button type=\"button\" class=\"card scope-card\" id=\"scopeOpen\" title=\"Muat ulang data sesuai wilayah aktif\"><span>WILAYAH AKTIF</span><strong style=\"font-size:16px;overflow-wrap:anywhere\">'+esc(context.territory_name||context.territory_id)+'</strong><small>Ruang lingkup data yang sedang dibuka.</small><small>↻ Klik untuk memuat ulang data modul sesuai wilayah aktif dan memeriksa ringkasan RT/RW CONNECT.</small></button></section><div class="toolbar"><div class="left"><span class="statuspill">'+esc(c.table)+'</span></div><div class="right">'+(canCreate?'<button class=\"btn primary\" id=\"new\">＋ Form Baru</button>':'')+'<button class="btn" id="reload">↻ Segarkan</button></div></div>';
  if(error){table+='<div class="notice danger">Gagal memuat data: '+esc(error.message)+'</div>'}
  else {
    table+='<div class="panel"><div class="tablewrap"><table><thead><tr>'+c.fields.map(f=>'<th>'+esc(f[1])+'</th>').join('')+'<th>Aksi</th></tr></thead><tbody>';
@@ -170,18 +170,27 @@ async function listModule(key){
     const result=await scopeQuery;
     if(result.error)throw new Error(result.error.message);
     const total=result.count??0;
-    const {data:sourceRows,error:sourceError}=await sb.schema('village').rpc('population_summary');
-    if(sourceError)throw new Error('Data modul terbaca, tetapi ringkasan RT/RW CONNECT gagal dimuat: '+sourceError.message);
-    const source=Array.isArray(sourceRows)?sourceRows[0]:sourceRows;
-    if(!source)throw new Error('Ringkasan RT/RW CONNECT tidak mengembalikan konteks wilayah.');
-    const sourceText='Data RT/RW CONNECT pada wilayah ini: '+source.rt_service_requests+' permohonan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, dan '+source.rt_business_profiles+' profil usaha.';
+    // Refresh the active SAD module first. A failed auxiliary RT/RW summary must not
+    // prevent the module's own scoped data from reloading.
+    await listModule(key);
+    let sourceText='Ringkasan RT/RW CONNECT belum tersedia.';
+    let summaryError='';
+    try{
+     const {data:sourceRows,error:sourceError}=await sb.schema('village').rpc('population_summary');
+     if(sourceError)throw new Error(sourceError.message);
+     const source=Array.isArray(sourceRows)?sourceRows[0]:sourceRows;
+     if(!source)throw new Error('Ringkasan tidak mengembalikan konteks wilayah.');
+     sourceText='Data RT/RW CONNECT pada wilayah ini: '+source.rt_service_requests+' permohonan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, dan '+source.rt_business_profiles+' profil usaha.';
+    }catch(summaryFailure){
+     summaryError=' Ringkasan RT/RW CONNECT gagal dimuat: '+(summaryFailure?.message||'kesalahan tidak diketahui')+'. Data modul SAD tetap dimuat sesuai scope.';
+    }
     scopeRefreshMessage=(total===0
-      ?'Pemeriksaan wilayah selesai. Belum ada record pada modul SAD '+moduleCfg.title+'. '
-      :'Pemeriksaan wilayah selesai: '+total+' record modul SAD '+moduleCfg.title+'. ')
-      +sourceText+' Modul SAD yang lain tetap membaca tabel domain masing-masing; sumber RT/RW tidak diperlakukan sebagai data perangkat desa/keuangan/surat.';
+      ?'Pemeriksaan wilayah selesai. Belum ada record non-demo pada modul SAD '+moduleCfg.title+'. '
+      :'Pemeriksaan wilayah selesai: '+total+' record non-demo pada modul SAD '+moduleCfg.title+'. ')
+      +sourceText+' Modul SAD yang lain tetap membaca tabel domain masing-masing; sumber RT/RW tidak diperlakukan sebagai data perangkat desa/keuangan/surat.'+summaryError;
     await listModule(key);
     const status=document.getElementById('scopeLoadStatus');
-    if(status){status.className='notice '+(total===0?'':'success');status.textContent=scopeRefreshMessage;}
+    if(status){status.className='notice '+(summaryError?'danger':(total===0?'':'success'));status.textContent=scopeRefreshMessage;}
     document.querySelector('.tablewrap')?.scrollIntoView({behavior:'smooth',block:'start'});
    }catch(e){
     const currentContent=document.getElementById('content');
