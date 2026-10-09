@@ -44,6 +44,7 @@ Deno.serve(async (req: Request) => {
   const timestamp = req.headers.get("X-Timestamp") ?? "";
   const signature = req.headers.get("X-Signature") ?? "";
   if (integrationId !== "jolie-economic-evidence-v1" || !uuidPattern.test(eventHeader)) return fail(401, "INVALID_INTEGRATION_HEADERS");
+  if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/.test(timestamp)) return fail(401, "INVALID_TIMESTAMP");
   const parsedTimestamp = Date.parse(timestamp);
   if (!Number.isFinite(parsedTimestamp) || Math.abs(Date.now() - parsedTimestamp) > 5 * 60 * 1000) return fail(401, "TIMESTAMP_OUTSIDE_WINDOW");
 
