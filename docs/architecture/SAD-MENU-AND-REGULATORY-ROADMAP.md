@@ -129,11 +129,11 @@ Tidak semua fitur RT/RW CONNECT perlu disalin. SAD menampilkan ringkasan, alur p
 
 ## Regulasi dasar yang harus dipetakan dan divalidasi
 
-- UU 6/2014 tentang Desa sebagaimana diubah, termasuk UU 3/2024.
-- Permendagri 20/2018 tentang Pengelolaan Keuangan Desa.
-- Permendesa PDT Nomor 16/2025 tentang Petunjuk Operasional atas Fokus Penggunaan Dana Desa Tahun 2026.
-- Permenkeu Nomor 7/2026 tentang Pengelolaan Dana Desa Tahun Anggaran 2026.
-- UU 27/2022 tentang Pelindungan Data Pribadi.
+- [UU 6/2014 tentang Desa](https://peraturan.bpk.go.id/Details/38582/uu-no-6-tahun-2014), sebagaimana diubah, termasuk [UU 3/2024](https://peraturan.bpk.go.id/Details/283617/uu-no-3-tahun-2024).
+- [Permendagri 20/2018 tentang Pengelolaan Keuangan Desa](https://peraturan.bpk.go.id/Details/139714/permendagri-no-20-tahun-2018).
+- [Permendesa PDT Nomor 16/2025 tentang Fokus Penggunaan Dana Desa Tahun 2026](https://www.peraturan.go.id/id/permendespdt-no-16-tahun-2025).
+- [Permenkeu Nomor 7/2026 tentang Pengelolaan Dana Desa Tahun Anggaran 2026](https://www.peraturan.go.id/id/permenkeu-no-7--tahun-2026).
+- [UU 27/2022 tentang Pelindungan Data Pribadi](https://peraturan.bpk.go.id/Details/229798/uu-no-27-tahun-2022).
 - Ketentuan kearsipan, keterbukaan informasi publik, pengadaan, statistik sektoral, SPBE, serta Perda/Perbup/Perwali dan SOP kabupaten/kota yang berlaku.
 
 Daftar ini merupakan baseline desain, bukan pendapat hukum final. Sebelum dipakai sebagai sistem resmi, status aturan, perubahan terbaru, peraturan daerah, kewenangan program dan format pelaporan wajib diverifikasi oleh pejabat/penasihat hukum yang berwenang.
