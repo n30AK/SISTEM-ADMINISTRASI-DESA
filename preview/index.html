@@ -90,9 +90,7 @@ async function loadCurrentPermissions(){
  if(roleError)return;
  currentRoleCode=role?.role_code||'';
  if(currentRoleCode==='PLATFORM_ADMIN')return;
- const {data:links,error:linksError}=await sb.from('role_permissions').select('permission_id').eq('role_id',context.role_id);
- if(linksError||!links?.length)return;
- const {data:permissions,error:permissionsError}=await sb.from('permissions').select('permission_code').in('id',links.map(x=>x.permission_id));
+ const {data:permissions,error:permissionsError}=await sb.schema('village').rpc('my_permissions');
  if(!permissionsError)currentPermissions=new Set((permissions||[]).map(x=>x.permission_code));
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
