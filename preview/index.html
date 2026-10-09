@@ -5,7 +5,7 @@
 <title>Sistem Administrasi Desa — Operasional</title>
 <link rel="stylesheet" href="assets/app.css"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <style>
-.auth{max-width:460px;margin:8vh auto}.auth .panel{padding:24px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#52606d}.field input,.field select,.field textarea{border:1px solid #d9e2ec;border-radius:8px;padding:10px;background:#fff;font:inherit}.field textarea{min-height:110px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.form-actionbar{position:sticky;bottom:0;z-index:5;background:rgba(255,255,255,.97);border-top:1px solid #d9e2ec;padding:12px 0;margin-top:20px;box-shadow:0 -4px 14px rgba(15,23,42,.08)}.muted{color:#697586;font-size:12px}.danger{color:#a33}.success{color:#13795b}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.toolbar .left,.toolbar .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:9px 12px;cursor:pointer}.btn.primary{background:#173b57;color:#fff;border-color:#173b57}.btn.danger{border-color:#e2a8a8}.notice{padding:12px 14px;border-radius:9px;background:#eef6ff;border:1px solid #cfe3f8;margin-bottom:14px}.statuspill{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2f7;font-size:11px;font-weight:700}.tablewrap table{min-width:780px}.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}.modalcard{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}@media(max-width:700px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.module-split{grid-template-columns:1fr!important}.module-form{position:static!important}} .module-split{display:grid;grid-template-columns:minmax(360px,.9fr) minmax(460px,1.1fr);gap:16px;align-items:start}.module-list{min-width:0}.module-form{min-width:0;position:sticky;top:12px;max-height:calc(100vh - 32px);overflow:auto}.module-form .panel{box-shadow:0 6px 22px rgba(15,23,42,.06)} .scope-card{cursor:pointer;text-align:left;font:inherit;width:100%;color:inherit}.scope-card:hover{border-color:#173b57;box-shadow:0 4px 14px rgba(15,23,42,.08)}.module-form .form-actionbar{position:sticky;bottom:0}
+.auth{max-width:460px;margin:8vh auto}.auth .panel{padding:24px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#52606d}.field input,.field select,.field textarea{border:1px solid #d9e2ec;border-radius:8px;padding:10px;background:#fff;font:inherit}.field textarea{min-height:110px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.form-actionbar{position:sticky;bottom:0;z-index:5;background:rgba(255,255,255,.97);border-top:1px solid #d9e2ec;padding:12px 0;margin-top:20px;box-shadow:0 -4px 14px rgba(15,23,42,.08)}.muted{color:#697586;font-size:12px}.danger{color:#a33}.success{color:#13795b}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.toolbar .left,.toolbar .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:9px 12px;cursor:pointer}.btn.primary{background:#173b57;color:#fff;border-color:#173b57}.btn.danger{border-color:#e2a8a8}.notice{padding:12px 14px;border-radius:9px;background:#eef6ff;border:1px solid #cfe3f8;margin-bottom:14px}.statuspill{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2f7;font-size:11px;font-weight:700}.tablewrap table{min-width:780px}.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}.modalcard{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}@media(max-width:700px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.module-split{grid-template-columns:1fr!important}.module-form{position:static!important}} .module-split{display:grid;grid-template-columns:minmax(360px,.9fr) minmax(460px,1.1fr);gap:16px;align-items:start}.module-list{min-width:0}.module-form{min-width:0;position:sticky;top:12px;max-height:calc(100vh - 32px);overflow:auto}.module-form .panel{box-shadow:0 6px 22px rgba(15,23,42,.06)} .scope-card{cursor:pointer;text-align:left;font:inherit;width:100%;color:inherit}.scope-card:hover{border-color:#173b57;box-shadow:0 4px 14px rgba(15,23,42,.08)}.module-form .form-actionbar{position:sticky;bottom:0}.sidebar nav{display:block;max-height:calc(100vh - 150px);overflow-y:auto;padding-right:4px}.nav-group{margin:4px 0;border:1px solid rgba(255,255,255,.12);border-radius:9px;overflow:hidden}.nav-group summary{cursor:pointer;list-style:none;padding:10px 11px;font-size:12px;font-weight:800;color:#fff;letter-spacing:.02em}.nav-group summary::-webkit-details-marker{display:none}.nav-group summary:after{content:'＋';float:right;opacity:.7}.nav-group[open] summary:after{content:'−'}.nav-submenu{display:grid;gap:2px;padding:0 5px 6px}.nav-submenu a{font-size:12px;padding:8px 10px}.nav-submenu a.active{background:#2c6e91}.scope-card small:last-child{color:#17658a;font-weight:700}.data-source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.data-source-card{display:block;border:1px solid #d6dee7;border-radius:14px;padding:16px;background:#fff;color:#17202a;text-decoration:none}.data-source-card:hover{border-color:#2c6e91;box-shadow:0 8px 20px rgba(16,42,67,.08)}.data-source-card strong{display:block;font-size:26px;margin:8px 0}.data-source-card small{display:block;color:#52606d;line-height:1.5}@media(max-width:850px){.sidebar{width:220px}main{margin-left:220px;width:calc(100% - 220px);padding:20px}}
 </style>
 </head>
 <body>
@@ -21,7 +21,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const URL='https://gzdusguveeeflmlvvmwe.supabase.co';
 const KEY='sb_publishable_nSqPHZf1-1CAJMFNmrpNqA_lafobeV-';
 const sb=createClient(URL,KEY);
-const labels={dashboard:'Dashboard',penduduk:'Penduduk',keluarga:'Keluarga',perangkat:'Perangkat Desa',surat:'Surat Keluar',permohonan:'Layanan & Permohonan',keuangan:'Keuangan',pembangunan:'Pembangunan',aset:'Aset Desa',bantuan:'Bantuan',dokumen:'Dokumen',layanan:'Katalog Layanan',pemerintahan:'Pemerintahan Desa',hukum:'Produk Hukum Desa',indeks:'Indeks Desa',sdgs:'SDGs Desa',ekonomi:'BUM Desa & Ekonomi',musyawarah:'Musyawarah & Partisipasi',informasi:'Informasi Publik',arsip:'Arsip & Dokumen',kepatuhan:'Kepatuhan',privasi:'Privasi & Keamanan',integrasi:'Integrasi RT/RW + GPFFE',buktiEkonomi:'Tinjauan Bukti Ekonomi Jolie',admin:'Administrasi Sistem',ai:'AI Companion',peristiwa:'Peristiwa Penduduk',regulasi:'Regulatory Center',pengaturan:'Pengaturan Desa',detailPenduduk:'Detail Penduduk',pemulihan:'Pemulihan Data',audit:'Audit & Riwayat',workflow:'Governance Workflow'};
+const labels={dashboard:'Dashboard',penduduk:'Penduduk',keluarga:'Keluarga',perangkat:'Perangkat Desa',surat:'Surat Keluar',permohonan:'Layanan & Permohonan',keuangan:'Keuangan',pembangunan:'Pembangunan',aset:'Aset Desa',bantuan:'Bantuan',dokumen:'Dokumen',layanan:'Katalog Layanan',pemerintahan:'Pemerintahan Desa',hukum:'Produk Hukum Desa',indeks:'Indeks Desa',sdgs:'SDGs Desa',ekonomi:'BUM Desa & Ekonomi',musyawarah:'Musyawarah & Partisipasi',informasi:'Informasi Publik',arsip:'Arsip & Dokumen',kepatuhan:'Kepatuhan',privasi:'Privasi & Keamanan',integrasi:'Integrasi RT/RW + GPFFE',buktiEkonomi:'Tinjauan Bukti Ekonomi Jolie',admin:'Administrasi Sistem',ai:'AI Companion',peristiwa:'Peristiwa Penduduk',regulasi:'Regulatory Center',pengaturan:'Pengaturan Desa',detailPenduduk:'Detail Penduduk',pemulihan:'Pemulihan Data',audit:'Audit & Riwayat',workflow:'Governance Workflow',rtconnect:'Ringkasan Wilayah RT/RW',rtpermohonan:'Permohonan RT/RW',rtkegiatan:'Kegiatan & Musyawarah Warga',rtekonomi:'UMKM & Perdagangan Warga',rtkesehatan:'Kesehatan (Agregat)',rtpendidikan:'Pendidikan & Keterampilan',rtinfrastruktur:'Infrastruktur Wilayah',rtlingkungan:'Lingkungan & Kebersihan',rtdarurat:'Kesiapsiagaan & Bencana',rtkeuangan:'Keuangan RT/RW',rtrelawan:'Relawan & Gotong Royong',gpffe:'Pertukaran Data GPFFE'};
 const cfg={layanan:{table:'services',title:'Katalog Layanan',fields:[['service_code','Kode Layanan','text'],['service_name','Nama Layanan','text'],['description','Deskripsi','textarea'],['active','Aktif','select:true|false'],['requirements','Persyaratan (JSON)','textarea'],['workflow','Alur Layanan (JSON)','textarea'],['metadata','Dasar Hukum / SLA / Output (JSON)','textarea']]},
 perangkat:{table:'officials',title:'Perangkat Desa',fields:[['full_name','Nama Lengkap','text'],['position_code','Kode Jabatan','text'],['position_name','Jabatan','text'],['start_date','Mulai Menjabat','date'],['end_date','Akhir Menjabat','date'],['status','Status','select:Aktif|Tidak Aktif']]},
 surat:{table:'letters',title:'Surat Keluar',fields:[['letter_type','Jenis Surat','text'],['subject','Perihal','text'],['letter_number','Nomor Surat','text'],['issued_at','Tanggal Terbit','datetime-local'],['status','Status','select:DRAFT|APPROVED|ISSUED|CLOSED']]},
@@ -95,7 +95,26 @@ async function loadCurrentPermissions(){
  if(!permissionsError)currentPermissions=new Set((permissions||[]).map(x=>x.permission_code));
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function nav(view){let n='';for(const [k,v] of Object.entries(labels))n+='<a class="'+(view===k?'active':'')+'" href="?view='+k+'">'+v+'</a>';document.getElementById('nav').innerHTML=n}
+const navGroups=[
+ {title:'Ringkasan',keys:['dashboard']},
+ {title:'Administrasi Desa',keys:['penduduk','keluarga','perangkat','peristiwa','surat','permohonan','layanan']},
+ {title:'Pemerintahan & Regulasi',keys:['pemerintahan','hukum','indeks','sdgs','musyawarah','informasi','kepatuhan','regulasi']},
+ {title:'Keuangan, Aset & Program',keys:['keuangan','pembangunan','aset','bantuan','ekonomi']},
+ {title:'RT/RW CONNECT',keys:['rtconnect','rtpermohonan','rtkegiatan','rtekonomi','rtkesehatan','rtpendidikan','rtinfrastruktur','rtlingkungan','rtdarurat','rtkeuangan','rtrelawan']},
+ {title:'GPFFE & Integrasi',keys:['integrasi','gpffe','buktiEkonomi']},
+ {title:'Dokumen & Pengawasan',keys:['dokumen','arsip','audit','workflow','pemulihan']},
+ {title:'Pengaturan & Bantuan',keys:['pengaturan','admin','privasi','ai','bantuan']}
+];
+function nav(view){
+ let n='';
+ for(const group of navGroups){
+  const active=group.keys.includes(view);
+  n+='<details class="nav-group" '+(active?'open':'')+'><summary>'+esc(group.title)+'</summary><div class="nav-submenu">';
+  for(const k of group.keys){if(!labels[k])continue;n+='<a class="'+(view===k?'active':'')+'" href="?view='+encodeURIComponent(k)+'">'+esc(labels[k])+'</a>'}
+  n+='</div></details>';
+ }
+ document.getElementById('nav').innerHTML=n;
+}
 function normalizeScopeId(value){if(value===null||value===undefined)return null;const v=String(value).trim();return !v||v.toLowerCase()==='null'||v.toLowerCase()==='undefined'?null:v}
 function applyTerritoryScope(query){const territoryId=normalizeScopeId(context?.territory_id);return query.eq('territory_id',territoryId||'00000000-0000-0000-0000-000000000000')}
 async function getContext(){const {data,error}=await sb.rpc('my_context');if(error)throw error;context=data?.[0]||null;if(context){context.organization_id=normalizeScopeId(context.organization_id);context.territory_id=normalizeScopeId(context.territory_id);}return data||[]}
@@ -149,57 +168,17 @@ async function listModule(key){
  document.getElementById('reload').onclick=()=>listModule(key);
  const scopeOpen=document.getElementById('scopeOpen');
  if(scopeOpen){
-  scopeOpen.setAttribute('aria-label','Muat ulang data '+(context?.territory_name||'wilayah aktif')+' untuk modul '+(cfg[key]?.title||key));
-  scopeOpen.onclick=async event=>{
+  scopeOpen.setAttribute('aria-label','Buka ringkasan data RT/RW CONNECT untuk '+(context?.territory_name||'wilayah aktif'));
+  scopeOpen.onclick=event=>{
    event.preventDefault();
-   if(scopeOpen.dataset.busy==='1')return;
-   scopeOpen.dataset.busy='1';scopeOpen.disabled=true;
-   const initialSmall=scopeOpen.querySelector('small:last-child');
-   if(initialSmall)initialSmall.textContent='⏳ Memuat ulang data wilayah…';
-   scopeRefreshMessage='Sedang memuat ulang data modul untuk wilayah '+(context?.territory_name||'aktif')+'…';
-   let sourceText='Ringkasan RT/RW CONNECT belum tersedia.';
-   let summaryError='';
-   try{
-    const rows=await getContext();
-    const organizationId=normalizeScopeId(context?.organization_id);
-    const territoryId=normalizeScopeId(context?.territory_id);
-    if(!rows.length||!organizationId)throw new Error('Organisasi aktif tidak tersedia. Keluar lalu masuk kembali dan periksa penugasan administrator.');
-    if(!territoryId)throw new Error('Wilayah aktif belum ditetapkan. Data tidak dimuat lintas wilayah.');
-    await loadCurrentPermissions();
-
-    // Refresh the module immediately; do not block SAD data on an auxiliary integration check.
-    await listModule(key);
-
-    try{
-     const {data:sourceRows,error:sourceError}=await sb.schema('village').rpc('population_summary');
-     if(sourceError)throw new Error(sourceError.message);
-     const source=Array.isArray(sourceRows)?sourceRows[0]:sourceRows;
-     if(!source)throw new Error('Ringkasan tidak mengembalikan konteks wilayah.');
-     sourceText='RT/RW CONNECT untuk wilayah '+(context.territory_name||'aktif')+': '+source.rt_service_requests+' permohonan layanan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, '+source.rt_business_profiles+' profil usaha.';
-    }catch(summaryFailure){
-     summaryError=' Pemeriksaan RT/RW CONNECT tidak tersedia: '+(summaryFailure?.message||'kesalahan tidak diketahui')+'. Data modul SAD tetap dimuat sesuai wilayah aktif.';
-    }
-    scopeRefreshMessage='Wilayah diperiksa: '+(context.territory_name||context.territory_id)+'. Daftar modul '+(cfg[key]?.title||key)+' telah dimuat ulang sesuai organisasi dan wilayah aktif. '+sourceText+summaryError;
-    await listModule(key);
-    const status=document.getElementById('scopeLoadStatus');
-    if(status){status.className='notice '+(summaryError?'danger':'success');status.textContent=scopeRefreshMessage;}
-    document.querySelector('.tablewrap')?.scrollIntoView({behavior:'smooth',block:'start'});
-   }catch(e){
-    scopeRefreshMessage='';
-    const currentContent=document.getElementById('content');
-    let notice=document.getElementById('scopeLoadStatus');
-    if(!notice){notice=document.createElement('div');notice.id='scopeLoadStatus';currentContent.prepend(notice);}
-    notice.className='notice danger';
-    notice.textContent='Data wilayah tidak berhasil dimuat: '+(e?.message||'Kesalahan tidak diketahui');
-   }finally{
-    const refreshedButton=document.getElementById('scopeOpen');
-    if(refreshedButton){
-     refreshedButton.disabled=false;refreshedButton.dataset.busy='0';
-     const refreshedSmall=refreshedButton.querySelector('small:last-child');
-     if(refreshedSmall)refreshedSmall.textContent='↻ Klik untuk memuat ulang daftar modul dan memeriksa ringkasan RT/RW CONNECT pada wilayah ini.';
-    }
+   if(!normalizeScopeId(context?.organization_id)||!normalizeScopeId(context?.territory_id)){
+    const msg=document.getElementById('scopeLoadStatus')||document.createElement('div');
+    msg.id='scopeLoadStatus';msg.className='notice danger';
+    msg.textContent='Organisasi atau wilayah aktif belum valid. Data RT/RW CONNECT tidak dimuat.';
+    document.getElementById('content').prepend(msg);return;
    }
- };
+   location.href='?view=rtconnect';
+  };
  }
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
 }
@@ -295,6 +274,93 @@ async function populationCenter(view){
  '<div><b>'+esc(x.rt_business_profiles)+'</b><small>Profil usaha</small></div>'+
  '</div><p class="muted">Angka ini adalah jumlah record pada tabel RT/RW CONNECT di database bersama, bukan jumlah orang unik. Data RT/RW juga tidak otomatis disalin menjadi data perangkat desa, anggaran, surat, atau aset; setiap modul memakai sumber data sesuai kewenangannya.</p><p class="muted">Terakhir dihitung: '+esc(generated)+'</p></div></section>';
  document.getElementById('populationRefresh').onclick=()=>populationCenter(view);
+}
+async function rtRwDashboard(){
+ document.getElementById('title').textContent='Ringkasan Wilayah RT/RW CONNECT';
+ const host=document.getElementById('content');
+ const territoryId=normalizeScopeId(context?.territory_id);
+ const organizationId=normalizeScopeId(context?.organization_id);
+ if(!territoryId||!organizationId){host.innerHTML='<div class="notice danger">Konteks organisasi/wilayah tidak valid. Data tidak dimuat.</div>';return}
+ host.innerHTML='<div class="notice">Memuat data operasional RT/RW CONNECT untuk '+esc(context.territory_name||'wilayah aktif')+'…</div>';
+ let summary=null,summaryError=null;
+ try{const r=await sb.schema('village').rpc('population_summary');if(r.error)throw r.error;summary=Array.isArray(r.data)?r.data[0]:r.data;if(!summary)throw new Error('Ringkasan wilayah tidak tersedia.')}catch(e){summaryError=e?.message||'Gagal membaca ringkasan'}
+ const sources=[
+  {key:'rtpermohonan',table:'rt_service_requests',label:'Permohonan RT/RW',count:summary?.rt_service_requests,fields:['request_number','service_type','status','source','created_at'],privacy:'Data formulir/payload dan identitas pemohon tidak ditampilkan di ringkasan.'},
+  {key:'rtkegiatan',table:'community_events',label:'Kegiatan & Musyawarah',fields:['name','event_type','event_date','location','status'],privacy:'Kegiatan sesuai wilayah aktif.'},
+  {key:'rtekonomi',table:'rt_business_profiles',label:'UMKM & Usaha',count:summary?.rt_business_profiles,fields:['business_name','business_type','sector','products_services','verification_status'],publicOnly:true,privacy:'Hanya usaha yang ditandai dapat ditampilkan secara publik.'},
+  {key:'rtkesehatan',table:'rt_health_observations',label:'Kesehatan (agregat)',count:summary?.rt_health_observations,aggregate:true,privacy:'Data kesehatan individual bersifat sensitif; dashboard hanya menampilkan jumlah, bukan nama, catatan, atau identitas pasien.'},
+  {key:'rtpendidikan',table:'rt_education_profiles',label:'Pendidikan & Keterampilan',count:summary?.rt_education_profiles,aggregate:true,privacy:'Ringkasan jumlah saja pada dashboard; data individu memerlukan akses khusus.'},
+  {key:'rtinfrastruktur',table:'rt_infrastructure_assets',label:'Infrastruktur Wilayah',fields:['object_name','object_type','location_text','condition','status'],privacy:'Inventaris fasilitas dan kebutuhan infrastruktur.'},
+  {key:'rtlingkungan',table:'rt_environment_issues',label:'Lingkungan & Kebersihan',fields:['issue_type','location_text','observed_at','description','status'],privacy:'Laporan lingkungan berdasarkan wilayah aktif.'},
+  {key:'rtdarurat',table:'rt_disaster_observations',label:'Kesiapsiagaan & Bencana',fields:['event_type','location_text','occurred_at','evacuation_point','impact','status'],privacy:'Kontak darurat personal tidak ditampilkan pada daftar umum.'},
+  {key:'rtkeuangan',table:'rt_rw_cash_accounts',label:'Keuangan RT/RW',fields:['account_code','account_name','account_type','status'],privacy:'Daftar akun saja; saldo dan transaksi rinci tetap mengikuti izin keuangan.'},
+  {key:'rtrelawan',table:'rt_volunteer_profiles',label:'Relawan & Gotong Royong',fields:['volunteer_domain','skills','certifications','availability','status'],privacy:'Identitas individu tidak ditampilkan pada ringkasan umum.'}
+ ];
+ const extraTables=['rt_planning_inputs','rt_employment_profiles','rt_trade_activities','arisan_groups','rt_rw_cash_transactions'];
+ const counts={};
+ await Promise.all(sources.filter(s=>s.count===undefined&&!s.aggregate).map(async s=>{
+  let q=sb.schema('public').from(s.table).select('id',{count:'exact',head:true}).eq('territory_id',territoryId);
+  if(s.publicOnly)q=q.eq('public_visible',true);
+  const {count,error}=await q;counts[s.key]=error?null:count;
+ }));
+ const extra=await Promise.all(extraTables.map(async table=>{let q=sb.schema('public').from(table).select('id',{count:'exact',head:true});if(table!=='arisan_groups')q=q.eq('territory_id',territoryId);else q=q.eq('territory_id',territoryId).eq('organization_id',organizationId);const {count,error}=await q;return {table,count,error:error?.message||null}}));
+ const extraByTable=Object.fromEntries(extra.map(x=>[x.table,x]));
+ const stat=(label,value,sub,link)=>'<a class="data-source-card" href="?view='+link+'"><span>'+esc(label)+'</span><strong>'+(value===null||value===undefined?'—':esc(value))+'</strong><small>'+esc(sub)+'</small></a>';
+ let cards='';
+ cards+=stat('Rumah Tangga',summary?.total_households,'Jumlah rumah tangga pada wilayah aktif.','rtconnect');
+ cards+=stat('Penduduk Aktif',summary?.total_persons,'Jumlah agregat; identitas tidak ditampilkan di ringkasan.','rtconnect');
+ cards+=stat('Permohonan RT/RW',summary?.rt_service_requests,'Permohonan layanan yang tercatat.','rtpermohonan');
+ cards+=stat('Kegiatan Warga',counts.rtkegiatan,'Agenda/kegiatan pada wilayah aktif.','rtkegiatan');
+ cards+=stat('UMKM & Usaha',counts.rtekonomi,'Profil usaha yang boleh ditampilkan.','rtekonomi');
+ cards+=stat('Kesehatan',summary?.rt_health_observations,'Agregat observasi; data kesehatan individual disembunyikan.','rtkesehatan');
+ cards+=stat('Pendidikan',summary?.rt_education_profiles,'Agregat profil pendidikan/keterampilan.','rtpendidikan');
+ cards+=stat('Infrastruktur',counts.rtinfrastruktur,'Fasilitas dan aset infrastruktur.','rtinfrastruktur');
+ cards+=stat('Isu Lingkungan',counts.rtlingkungan,'Laporan lingkungan dan kebersihan.','rtlingkungan');
+ cards+=stat('Kesiapsiagaan',counts.rtdarurat,'Observasi bencana/kedaruratan.','rtdarurat');
+ cards+=stat('Akun Keuangan RT/RW',counts.rtkeuangan,'Jumlah akun; rincian keuangan tetap dibatasi.','rtkeuangan');
+ cards+=stat('Relawan',counts.rtrelawan,'Profil relawan; identitas individu tidak ditampilkan.','rtrelawan');
+ const planning=extraByTable.rt_planning_inputs,employment=extraByTable.rt_employment_profiles,trade=extraByTable.rt_trade_activities,arisan=extraByTable.arisan_groups,transactions=extraByTable.rt_rw_cash_transactions;
+ const issues=[summaryError,...extra.map(x=>x.error).filter(Boolean)].filter(Boolean);
+ host.innerHTML='<div class="notice '+(issues.length?'danger':'success')+'"><b>Data wilayah: '+esc(context.territory_name||territoryId)+'</b><br>Sumber: tabel operasional RT/RW CONNECT pada proyek Supabase bersama, bukan papan pengumuman. Data dibatasi pada wilayah aktif; hasil kosong dibedakan dari kegagalan akses. '+(issues.length?'Beberapa tabel tidak dapat dibaca: '+esc([...new Set(issues)].join(' · ')):'Pemeriksaan ringkasan selesai.')+'</div><div class="toolbar"><div class="left"><span class="statuspill">RT/RW CONNECT · DATA OPERASIONAL</span></div><div class="right"><button class="btn" id="rtRwRefresh">↻ Muat Ulang Data</button><a class="btn" href="?view=integrasi">Status Integrasi</a></div></div><section class="data-source-grid">'+cards+'</section><section class="panel" style="margin-top:16px"><div class="panelhead"><div><span class="eyebrow">DATA WILAYAH LAINNYA</span><h2>Program dan aktivitas komunitas</h2></div></div><div class="live-grid"><div><b>'+(planning.error?'—':esc(planning.count??0))+'</b><small>Usulan perencanaan warga</small></div><div><b>'+(employment.error?'—':esc(employment.count??0))+'</b><small>Profil pekerjaan/keterampilan</small></div><div><b>'+(trade.error?'—':esc(trade.count??0))+'</b><small>Aktivitas perdagangan</small></div><div><b>'+(arisan.error?'—':esc(arisan.count??0))+'</b><small>Kelompok arisan</small></div><div><b>'+(transactions.error?'—':esc(transactions.count??0))+'</b><small>Transaksi RT/RW (jumlah saja)</small></div></div><p class="muted">Ringkasan ini menggunakan data nyata yang tersedia. Angka 0 berarti belum ada record yang dapat dibaca pada cakupan tersebut; angka “—” berarti pemeriksaan gagal/tidak diizinkan. Tidak ada data contoh yang dibuat otomatis.</p></section>';
+ document.getElementById('rtRwRefresh').onclick=rtRwDashboard;
+}
+async function rtRwModule(view){
+ const map={
+  rtpermohonan:{title:'Permohonan RT/RW',table:'rt_service_requests',fields:['request_number','service_type','status','source','authority','created_at'],org:true},
+  rtkegiatan:{title:'Kegiatan & Musyawarah Warga',table:'community_events',fields:['name','event_type','event_date','location','status','public_visible'],org:true},
+  rtekonomi:{title:'UMKM & Perdagangan Warga',table:'rt_business_profiles',fields:['business_name','business_type','sector','products_services','verification_status','public_visible'],publicOnly:true},
+  rtkesehatan:{title:'Kesehatan (Agregat)',table:'rt_health_observations',aggregate:true},
+  rtpendidikan:{title:'Pendidikan & Keterampilan',table:'rt_education_profiles',aggregate:true},
+  rtinfrastruktur:{title:'Infrastruktur Wilayah',table:'rt_infrastructure_assets',fields:['object_name','object_type','location_text','condition','needs','status']},
+  rtlingkungan:{title:'Lingkungan & Kebersihan',table:'rt_environment_issues',fields:['issue_type','location_text','observed_at','description','status']},
+  rtdarurat:{title:'Kesiapsiagaan & Bencana',table:'rt_disaster_observations',fields:['event_type','location_text','occurred_at','evacuation_point','impact','status']},
+  rtkeuangan:{title:'Keuangan RT/RW',table:'rt_rw_cash_accounts',fields:['account_code','account_name','account_type','status'],org:true},
+  rtrelawan:{title:'Relawan & Gotong Royong',table:'rt_volunteer_profiles',fields:['volunteer_domain','skills','certifications','availability','status'],aggregate:true}
+ };
+ const m=map[view];if(!m){await rtRwDashboard();return}
+ const host=document.getElementById('content');document.getElementById('title').textContent=m.title;
+ const territoryId=normalizeScopeId(context?.territory_id),organizationId=normalizeScopeId(context?.organization_id);
+ if(!territoryId||!organizationId){host.innerHTML='<div class="notice danger">Konteks organisasi/wilayah tidak valid.</div>';return}
+ host.innerHTML='<div class="notice">Memuat data '+esc(m.title)+' untuk '+esc(context.territory_name||'wilayah aktif')+'…</div>';
+ let q=sb.schema('public').from(m.table).select(m.aggregate?'id':m.fields.join(','),{count:'exact'}).eq('territory_id',territoryId);
+ if(m.org)q=q.or('organization_id.is.null,organization_id.eq.'+organizationId);
+ if(m.publicOnly)q=q.eq('public_visible',true);
+ if(m.aggregate){
+  const {count,error}=await q.select('id',{count:'exact',head:true});
+  host.innerHTML='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>'+esc(m.aggregate?'Untuk menjaga privasi, halaman ini hanya menampilkan jumlah agregat, bukan identitas atau catatan individu.':'')+'</div><section class="grid"><div class="card"><span>TOTAL RECORD TERBACA</span><strong>'+(error?'—':esc(count??0))+'</strong><small>Wilayah '+esc(context.territory_name||'aktif')+'</small></div></section>'+(error?'<div class="notice danger">'+esc(error.message)+'</div>':'');
+  return;
+ }
+ const {data,error,count}=await q.order('created_at',{ascending:false}).limit(50);
+ let html='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>Data sumber RT/RW CONNECT · wilayah '+esc(context.territory_name||'aktif')+'. Maksimal 50 record terbaru; data pribadi/field payload tidak ditampilkan.</div><div class="toolbar"><div class="left"><span class="statuspill">'+esc(m.table)+'</span></div><div class="right"><button class="btn" id="rtModuleRefresh">↻ Segarkan</button><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan Wilayah</a></div></div>';
+ if(error)html+='<div class="notice danger">Data tidak dapat dimuat: '+esc(error.message)+'</div>';
+ else if(!data?.length)html+='<div class="notice">Belum ada record yang dapat ditampilkan untuk wilayah ini. Ini bukan papan pengumuman; data akan muncul setelah modul RT/RW CONNECT menerima data operasional yang sah.</div>';
+ else{
+  html+='<section class="panel"><div class="tablewrap"><table><thead><tr>'+m.fields.map(f=>'<th>'+esc(f.replace(/_/g,' '))+'</th>').join('')+'</tr></thead><tbody>';
+  html+=data.map(row=>'<tr>'+m.fields.map(f=>'<td>'+esc(row[f] instanceof Object?JSON.stringify(row[f]):row[f])+'</td>').join('')+'</tr>').join('');
+  html+='</tbody></table></div></section><p class="muted">'+esc(count??data.length)+' record tersedia; tampilan dibatasi 50 record terbaru.</p>';
+ }
+ host.innerHTML=html;
+ document.getElementById('rtModuleRefresh')?.addEventListener('click',()=>rtRwModule(view));
 }
 async function integrationCenter(){
  document.getElementById('title').textContent='Integrasi RT/RW CONNECT + GPFFE';
@@ -477,7 +543,7 @@ async function workflowCenter(){
  document.getElementById('content').innerHTML='<div class="notice"><b>Governance Workflow.</b> Status operasional digunakan sebagai kontrol proses. Sistem tidak menggantikan kewenangan pejabat atau tanda tangan resmi.</div><section class="grid">'+items.map((x,i)=>'<div class="card"><span>TAHAP '+(i+1)+'</span><strong>'+x[0]+'</strong><small>'+x[1]+'</small></div>').join('')+'</section><section class="panel"><h2>Kontrol wajib</h2><div class="live-grid"><div><b>Pemisahan kewenangan</b><small>Pembuat, pemeriksa dan penyetuju tidak otomatis dianggap orang yang sama.</small></div><div><b>Bukti keputusan</b><small>Persetujuan harus dapat ditelusuri melalui audit trail.</small></div><div><b>Ruang lingkup</b><small>Perubahan dibatasi organisasi dan territory aktif.</small></div><div><b>Arsip</b><small>Data selesai tidak dihapus permanen tanpa mekanisme yang sah.</small></div></div></section>';
 }
 
-async function render(){const {data:{session}}=await sb.auth.getSession();if(!session){document.getElementById('logout').classList.add('hidden');document.getElementById('connection').textContent='● LOGIN DIPERLUKAN';loginView();return}document.getElementById('logout').classList.remove('hidden');document.getElementById('connection').textContent='● TEROTENTIKASI';if(!(await requireContext()))return;await loadCurrentPermissions();const view=new URLSearchParams(location.search).get('view')||'dashboard';nav(view);if(view==='dashboard')dashboard();else if(view==='permohonan')await listModule('permohonan');else if(view==='layanan')await listModule('layanan');else if(view==='kepatuhan')compliance();else if(view==='ai')await aiCompanion();else if(view==='regulasi')await regulatoryCenter();else if(view==='pengaturan')await pengaturanDesa();else if(view==='detailPenduduk')await detailPenduduk();else if(view==='pemulihan')await governanceData();else if(view==='audit')await auditCenter();else if(view==='workflow')await workflowCenter();else if(view==='integrasi')await integrationCenter();else if(view==='buktiEkonomi')await economicEvidenceCenter();else if(['pemerintahan','hukum'].includes(view))await listModule(view);else if(['indeks','sdgs','ekonomi','musyawarah','informasi','arsip','privasi','admin'].includes(view))regulatoryModule(view);else if(view==='penduduk'||view==='keluarga')await populationCenter(view);else if(view==='peristiwa')await listModule('peristiwa');else if(view==='dokumen')await listModule('dokumen');else if(view==='bantuan')await bantuan();else await listModule(view)}
+async function render(){const {data:{session}}=await sb.auth.getSession();if(!session){document.getElementById('logout').classList.add('hidden');document.getElementById('connection').textContent='● LOGIN DIPERLUKAN';loginView();return}document.getElementById('logout').classList.remove('hidden');document.getElementById('connection').textContent='● TEROTENTIKASI';if(!(await requireContext()))return;await loadCurrentPermissions();const view=new URLSearchParams(location.search).get('view')||'dashboard';nav(view);if(view==='dashboard')dashboard();else if(view==='permohonan')await listModule('permohonan');else if(view==='layanan')await listModule('layanan');else if(view==='kepatuhan')compliance();else if(view==='ai')await aiCompanion();else if(view==='regulasi')await regulatoryCenter();else if(view==='pengaturan')await pengaturanDesa();else if(view==='detailPenduduk')await detailPenduduk();else if(view==='pemulihan')await governanceData();else if(view==='audit')await auditCenter();else if(view==='workflow')await workflowCenter();else if(view==='integrasi')await integrationCenter();else if(view==='buktiEkonomi')await economicEvidenceCenter();else if(['pemerintahan','hukum'].includes(view))await listModule(view);else if(['indeks','sdgs','ekonomi','musyawarah','informasi','arsip','privasi','admin'].includes(view))regulatoryModule(view);else if(view==='penduduk'||view==='keluarga')await populationCenter(view);else if(view==='peristiwa')await listModule('peristiwa');else if(view==='dokumen')await listModule('dokumen');else if(view==='bantuan')await bantuan();else if(view==='rtconnect')await rtRwDashboard();else if(['rtconnect','rtpermohonan','rtkegiatan','rtekonomi','rtkesehatan','rtpendidikan','rtinfrastruktur','rtlingkungan','rtdarurat','rtkeuangan','rtrelawan'].includes(view))await rtRwModule(view);else if(view==='gpffe')await integrationCenter();else await listModule(view)}
 async function bantuan(){document.getElementById('title').textContent='Pusat Bantuan & Panduan';const content=document.getElementById('content');content.innerHTML=`
 <div class="notice"><b>Pusat Bantuan Sistem Administrasi Desa</b><br>Panduan operasional untuk pengelolaan administrasi desa, pelayanan warga, tata kelola data, keamanan, dan integrasi RT/RW CONNECT + GPFFE.</div>
 <div class="toolbar"><div class="left"><input id="helpSearch" class="btn" style="min-width:280px" placeholder="Cari panduan, menu, atau kata kunci…"></div><div class="right"><a class="btn primary" href="?view=ai">Tanya AI</a><button class="btn" id="helpReset" type="button">Tampilkan Semua</button></div></div>
