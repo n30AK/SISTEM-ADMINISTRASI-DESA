@@ -165,7 +165,7 @@ async function listModule(key){
     const result=await q;
     if(result.error)throw new Error(result.error.message);
     const total=result.count??0;
-    scopeRefreshMessage='Wilayah '+(context.territory_name||context.territory_id)+' dimuat ulang. '+total+' record aktif ditemukan.';
+    scopeRefreshMessage=total===0?'Konteks wilayah '+(context.territory_name||context.territory_id)+' berhasil dimuat, tetapi belum ada data aktif pada modul '+(cfgForScope.title||keyForReload)+'. Gunakan “＋ Form Baru” untuk memasukkan data resmi, atau periksa proses impor yang disetujui.':'Berhasil memuat '+total+' record aktif untuk wilayah '+(context.territory_name||context.territory_id)+'.';
     await listModule(keyForReload);
     status=document.getElementById('scopeLoadStatus');
     if(status){status.className='notice '+(total===0?'':'success');status.textContent=total===0?'Konteks wilayah berhasil dimuat, tetapi belum ada data aktif pada modul '+(cfgForScope.title||keyForReload)+'. Gunakan “＋ Form Baru” untuk memasukkan data resmi, atau periksa proses impor yang disetujui.':'Berhasil memuat '+total+' record aktif untuk wilayah '+(context.territory_name||context.territory_id)+'.';}
