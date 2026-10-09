@@ -119,19 +119,18 @@ async function dashboard(){
 }
 async function listModule(key){
  const c=cfg[key]; document.getElementById('title').textContent=c.title;
- const {data,error}=await sb.schema('village').from(c.table).select('*').is('deleted_at',null).order('created_at',{ascending:false}).limit(50);
+ const {data,error}=await sb.schema('village').from(c.table).select('*').eq('organization_id',context.organization_id).eq('territory_id',context.territory_id).is('deleted_at',null).order('created_at',{ascending:false}).limit(50);
  let table='<div class="toolbar"><div class="left"><span class="statuspill">'+esc(c.table)+'</span><span class="muted">Organisasi: '+esc(context.organization_name||context.organization_id)+'</span></div><div class="right"><button class="btn primary" id="new">＋ Form Baru</button><button class="btn" id="reload">↻ Muat Ulang</button></div></div>';
  if(error){table+='<div class="notice danger">Gagal memuat data: '+esc(error.message)+'</div>'}
  else {
    table+='<div class="panel"><div class="tablewrap"><table><thead><tr>'+c.fields.map(f=>'<th>'+esc(f[1])+'</th>').join('')+'<th>Aksi</th></tr></thead><tbody>';
-   table+=((data||[]).map(row=>'<tr>'+c.fields.map(f=>'<td>'+esc(f[0]==='payload'||f[0]==='administrative_form'?JSON.stringify(row[f[0]]):row[f[0]])+'</td>').join('')+'<td><button class="btn" data-edit="'+row.id+'">Buka</button></td></tr>').join('')||'<tr><td colspan="'+(c.fields.length+1)+'" class="muted">Belum ada data. Form baru tersedia di panel kanan.</td></tr>');
+   table+=((data||[]).map(row=>'<tr>'+c.fields.map(f=>'<td>'+esc(f[0]==='payload'||f[0]==='administrative_form'?JSON.stringify(row[f[0]]):row[f[0]])+'</td>').join('')+'<td><button class="btn" data-edit="'+row.id+'">Buka</button></td></tr>').join('')||'<tr><td colspan="'+(c.fields.length+1)+'" class="muted">Belum ada data. Pilih “＋ Form Baru” untuk menambahkan record.</td></tr>');
    table+='</tbody></table></div></div>';
  }
- document.getElementById('content').innerHTML='<div class="module-split"><section class="module-list">'+table+'</section><aside id="moduleForm" class="module-form"></aside></div>';
- document.getElementById('new').onclick=()=>formModule(key,null,true);
+ document.getElementById('content').innerHTML='<section class="module-list">'+table+'</section>';
+ document.getElementById('new').onclick=()=>formModule(key,null,false);
  document.getElementById('reload').onclick=()=>listModule(key);
- document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,true));
- formModule(key,(data&&data.length)?data[0].id:null,true);
+ document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
 }
 async function loadServiceOptions(selected=''){
  const {data,error}=await sb.schema('village').from('services').select('id,service_code,service_name,active').is('deleted_at',null).order('service_name',{ascending:true}).limit(200);
@@ -192,7 +191,7 @@ async function populationCenter(view){
  document.getElementById('title').textContent=labels[view];
  const {data,error}=await sb.schema('village').from('population_aggregates').select('total_households,active_households,total_persons,linked_persons').maybeSingle();
  if(error){document.getElementById('content').innerHTML='<div class="notice danger">Data agregat penduduk belum dapat dibaca: '+esc(error.message)+'</div>';return}
- const x=data?.[0]||{total_households:0,active_households:0,total_persons:0,linked_persons:0};
+ const x=data||{total_households:0,active_households:0,total_persons:0,linked_persons:0};
  const isPerson=view==='penduduk';
  document.getElementById('content').innerHTML='<div class="notice"><b>Data Center '+esc(labels[view])+'</b><br>Ringkasan ini dirancang privacy-by-design: Control Tower hanya menerima angka agregat sesuai konteks wilayah aktif, bukan NIK, telepon atau daftar identitas pribadi.</div><section class="grid"><div class="card"><span>JUMLAH KELUARGA</span><strong>'+esc(x.total_households)+'</strong><small>Rumah tangga pada territory aktif.</small></div><div class="card"><span>KELUARGA AKTIF</span><strong>'+esc(x.active_households)+'</strong><small>Rumah tangga berstatus aktif.</small></div><div class="card"><span>JUMLAH PENDUDUK</span><strong>'+esc(x.total_persons)+'</strong><small>Record penduduk yang terhubung ke keluarga pada wilayah aktif.</small></div><div class="card"><span>TERHUBUNG KE KELUARGA</span><strong>'+esc(x.linked_persons)+'</strong><small>Record yang memiliki hubungan keluarga.</small></div></section><section class="panel"><div class="panelhead"><div><span class="eyebrow">PRIVACY GUARDIAN</span><h2>'+esc(isPerson?'Ringkasan Penduduk':'Ringkasan Keluarga')+'</h2></div><button class="btn" id="populationRefresh">↻ Segarkan</button></div><p>Detail identitas seperti NIK, nomor telepon dan nama lengkap tetap berada di jalur data yang dilindungi dan tidak ditampilkan sebagai daftar massal di Control Tower.</p></section>';
  document.getElementById('populationRefresh').onclick=()=>populationCenter(view);
