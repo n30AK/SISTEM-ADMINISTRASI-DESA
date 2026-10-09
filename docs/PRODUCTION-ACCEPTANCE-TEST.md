@@ -193,7 +193,24 @@ Temuan yang masih muncul adalah temuan platform/extension:
 
 Temuan tersebut dicatat sebagai **platform/system findings**, bukan dianggap sebagai bukti bahwa RLS aplikasi village/RT/RW telah dilewati.
 
-## 14. Go-Live Decision
+## 14. JOLIE Economic Evidence Integration
+
+- [x] Contract documented in docs/integrations/JOLIE-SAD-ECONOMIC-DATA-CONTRACT.md.
+- [x] Receiver Edge Function deployed as economic-evidence-ingest with custom HMAC authentication and fail-closed behavior.
+- [x] Inbox and tenant-mapping tables exist with RLS enabled and no grants to anon/authenticated.
+- [x] INSERT/UPDATE/DELETE audit trigger exists for the economic evidence inbox.
+- [x] Initial production query confirmed tenant mappings = 0 and accepted events = 0.
+- [ ] Verify HMAC secret is configured and rotate it through the approved secret-management path.
+- [ ] Create and approve the first tenant/territory mapping after owner consent.
+- [ ] Test bad signature, expired timestamp, replay, altered payload, duplicate event, unknown tenant, and out-of-scope program.
+- [ ] Test that private customer/personal data is rejected by the strict payload allowlist.
+- [ ] Build authorized review UI/workflow for source-reported evidence before marking any event verified.
+- [ ] Verify the function returns safe errors and no payload/secret details are written to logs.
+- [ ] Pilot with synthetic staging events before any approved production event.
+
+Important: the deployed endpoint is not proof that JOLIE is integrated. With no approved mapping, incoming events are rejected. Do not send real business data until the secret, mapping, tests, owner approval, and review process are complete.
+
+## 15. Go-Live Decision
 
 ### PASS
 Semua checklist kritis berikut harus PASS:
@@ -215,7 +232,7 @@ Semua checklist kritis berikut harus PASS:
 
 Regression database sudah dijalankan dan tidak menemukan data workflow invalid. Namun connector yang tersedia tidak menyediakan sesi login dua pengguna nyata untuk melakukan cross-organization/cross-territory RLS negative test. Karena itu sistem belum boleh diberi label **GO-LIVE VERIFIED** secara jujur.
 
-## 15. Evidence Record
+## 16. Evidence Record
 
 | Waktu | Tester | Role | Organization | Territory | Test | Result | Evidence |
 |---|---|---|---|---|---|---|---|
