@@ -197,7 +197,7 @@ Temuan tersebut dicatat sebagai **platform/system findings**, bukan dianggap seb
 
 - [x] Contract documented in docs/integrations/JOLIE-SAD-ECONOMIC-DATA-CONTRACT.md.
 - [x] Receiver Edge Function deployed as economic-evidence-ingest with custom HMAC authentication and fail-closed behavior.
-- [x] Inbox and tenant-mapping tables exist with RLS enabled and no grants to anon/authenticated.
+- [x] Inbox and tenant-mapping tables have RLS enabled; anonymous access is denied and authenticated inbox access is limited to reviewer-scoped SELECT plus column-limited UPDATE.
 - [x] INSERT/UPDATE/DELETE audit trigger exists for the economic evidence inbox.
 - [x] Evidence review RPCs use SECURITY INVOKER; SELECT/UPDATE are scoped by RLS policies to active reviewer assignments matching the exact organization and territory.
 - [x] Review updates are column-limited; reviewer identity/time are set by a database trigger and cannot be directly updated by authenticated clients.
