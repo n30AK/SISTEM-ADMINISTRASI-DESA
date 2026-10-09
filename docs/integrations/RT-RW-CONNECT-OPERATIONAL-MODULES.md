@@ -11,6 +11,10 @@ Kartu **Wilayah Aktif** di modul data membuka **Ringkasan Wilayah RT/RW CONNECT*
 ## Menu RT/RW CONNECT yang ditautkan
 
 - Ringkasan Wilayah RT/RW
+- Kabar Desa (feed artikel publik)
+- Pengumuman Desa
+- Ruang Warga & Pengaduan (jumlah agregat; isi pesan tidak dibuka)
+- Peta Wilayah & GIS (ringkasan lapisan; bukan peta interaktif)
 - Permohonan RT/RW
 - Kegiatan & Musyawarah Warga
 - UMKM & Perdagangan Warga
