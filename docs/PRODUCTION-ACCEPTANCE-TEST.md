@@ -199,12 +199,14 @@ Temuan tersebut dicatat sebagai **platform/system findings**, bukan dianggap seb
 - [x] Receiver Edge Function deployed as economic-evidence-ingest with custom HMAC authentication and fail-closed behavior.
 - [x] Inbox and tenant-mapping tables exist with RLS enabled and no grants to anon/authenticated.
 - [x] INSERT/UPDATE/DELETE audit trigger exists for the economic evidence inbox.
+- [x] Scoped review RPCs deployed: authenticated-only execution; active role assignment must match the same organization and territory; review notes required; terminal rejected/superseded records cannot be changed.
+- [x] SAD UI screen added at `?view=buktiEkonomi` for scoped evidence review; runtime acceptance still pending with an authorized reviewer account.
 - [x] Initial production query confirmed tenant mappings = 0 and accepted events = 0.
 - [ ] Verify HMAC secret is configured and rotate it through the approved secret-management path.
 - [ ] Create and approve the first tenant/territory mapping after owner consent.
 - [ ] Test bad signature, expired timestamp, replay, altered payload, duplicate event, unknown tenant, and out-of-scope program.
 - [ ] Test that private customer/personal data is rejected by the strict payload allowlist.
-- [ ] Build authorized review UI/workflow for source-reported evidence before marking any event verified.
+- [x] Build authorized review UI/workflow for source-reported evidence before marking any event verified.
 - [ ] Verify the function returns safe errors and no payload/secret details are written to logs.
 - [ ] Pilot with synthetic staging events before any approved production event.
 
