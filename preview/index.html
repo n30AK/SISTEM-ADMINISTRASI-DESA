@@ -303,7 +303,7 @@ async function rtRwDashboard(){
   if(s.publicOnly)q=q.eq('public_visible',true);
   const {count,error}=await q;counts[s.key]=error?null:count;
  }));
- const extra=await Promise.all(extraTables.map(async table=>{let q=sb.schema('public').from(table).select('id',{count:'exact',head:true});if(table!=='arisan_groups')q=q.eq('territory_id',territoryId);else q=q.eq('territory_id',territoryId).eq('organization_id',organizationId);const {count,error}=await q;return {table,count,error:error?.message||null}}));
+ const extra=await Promise.all(extraTables.map(async table=>{let q;if(table==='rt_rw_cash_transactions'){q=sb.schema('public').from(table).select('id,rt_rw_cash_accounts!inner(territory_id,organization_id)',{count:'exact',head:true}).eq('rt_rw_cash_accounts.territory_id',territoryId).eq('rt_rw_cash_accounts.organization_id',organizationId)}else{q=sb.schema('public').from(table).select('id',{count:'exact',head:true}).eq('territory_id',territoryId);if(table==='arisan_groups')q=q.eq('organization_id',organizationId)}const {count,error}=await q;return {table,count,error:error?.message||null}}));
  const extraByTable=Object.fromEntries(extra.map(x=>[x.table,x]));
  const stat=(label,value,sub,link)=>'<a class="data-source-card" href="?view='+link+'"><span>'+esc(label)+'</span><strong>'+(value===null||value===undefined?'—':esc(value))+'</strong><small>'+esc(sub)+'</small></a>';
  let cards='';
@@ -342,14 +342,14 @@ async function rtRwModule(view){
  const territoryId=normalizeScopeId(context?.territory_id),organizationId=normalizeScopeId(context?.organization_id);
  if(!territoryId||!organizationId){host.innerHTML='<div class="notice danger">Konteks organisasi/wilayah tidak valid.</div>';return}
  host.innerHTML='<div class="notice">Memuat data '+esc(m.title)+' untuk '+esc(context.territory_name||'wilayah aktif')+'…</div>';
- let q=sb.schema('public').from(m.table).select(m.aggregate?'id':m.fields.join(','),{count:'exact'}).eq('territory_id',territoryId);
- if(m.org)q=q.or('organization_id.is.null,organization_id.eq.'+organizationId);
- if(m.publicOnly)q=q.eq('public_visible',true);
  if(m.aggregate){
-  const {count,error}=await q.select('id',{count:'exact',head:true});
-  host.innerHTML='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>'+esc(m.aggregate?'Untuk menjaga privasi, halaman ini hanya menampilkan jumlah agregat, bukan identitas atau catatan individu.':'')+'</div><section class="grid"><div class="card"><span>TOTAL RECORD TERBACA</span><strong>'+(error?'—':esc(count??0))+'</strong><small>Wilayah '+esc(context.territory_name||'aktif')+'</small></div></section>'+(error?'<div class="notice danger">'+esc(error.message)+'</div>':'');
+  const {count,error}=await sb.schema('public').from(m.table).select('id',{count:'exact',head:true}).eq('territory_id',territoryId);
+  host.innerHTML='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>Untuk menjaga privasi, halaman ini hanya menampilkan jumlah agregat, bukan identitas atau catatan individu.</div><section class="grid"><div class="card"><span>TOTAL RECORD TERBACA</span><strong>'+(error?'—':esc(count??0))+'</strong><small>Wilayah '+esc(context.territory_name||'aktif')+'</small></div></section>'+(error?'<div class="notice danger">'+esc(error.message)+'</div>':'');
   return;
  }
+ let q=sb.schema('public').from(m.table).select(m.fields.join(','),{count:'exact'}).eq('territory_id',territoryId);
+ if(m.org)q=q.or('organization_id.is.null,organization_id.eq.'+organizationId);
+ if(m.publicOnly)q=q.eq('public_visible',true);
  const {data,error,count}=await q.order('created_at',{ascending:false}).limit(50);
  let html='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>Data sumber RT/RW CONNECT · wilayah '+esc(context.territory_name||'aktif')+'. Maksimal 50 record terbaru; data pribadi/field payload tidak ditampilkan.</div><div class="toolbar"><div class="left"><span class="statuspill">'+esc(m.table)+'</span></div><div class="right"><button class="btn" id="rtModuleRefresh">↻ Segarkan</button><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan Wilayah</a></div></div>';
  if(error)html+='<div class="notice danger">Data tidak dapat dimuat: '+esc(error.message)+'</div>';
