@@ -50,8 +50,9 @@ Deno.serve(async (req: Request) => {
 
   const declaredLength = Number(req.headers.get("Content-Length") ?? "0");
   if (declaredLength > 65536) return fail(413, "PAYLOAD_TOO_LARGE");
-  const rawBody = await req.text();
-  if (new TextEncoder().encode(rawBody).length > 65536) return fail(413, "PAYLOAD_TOO_LARGE");
+  let rawBody: string;
+  try { rawBody = await readBodyLimited(req, 65536); }
+  catch (error) { return fail(error instanceof Error && error.message === "PAYLOAD_TOO_LARGE" ? 413 : 400, "INVALID_OR_OVERSIZED_BODY"); }
 
   const supplied = signature.match(/^v1=([a-f0-9]{64})$/i)?.[1]?.toLowerCase();
   if (!supplied) return fail(401, "INVALID_SIGNATURE");
