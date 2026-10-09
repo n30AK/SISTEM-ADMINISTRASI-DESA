@@ -415,6 +415,54 @@ async function rtRwModule(view){
   }catch(e){mapStatus.textContent='Peta interaktif gagal dimuat. Periksa koneksi internet dan pemblokir konten; ringkasan RT/RW tetap tersedia.'}
   return
 }
+ if(view==='rtpendudukaktif'){
+  const types=[
+   {key:'LAHIR',label:'Kelahiran',aliases:['LAHIR','KELAHIRAN']},
+   {key:'MENINGGAL',label:'Kematian',aliases:['MENINGGAL','KEMATIAN']},
+   {key:'DATANG',label:'Penduduk Datang',aliases:['DATANG','PINDAH_DATANG','KEDATANGAN']},
+   {key:'PINDAH',label:'Penduduk Pindah',aliases:['PINDAH','PINDAH_KELUAR','KEPINDAHAN']},
+   {key:'PERUBAHAN_DATA',label:'Perubahan Data',aliases:['PERUBAHAN_DATA','UBAH_DATA']},
+   {key:'PERUBAHAN_KK',label:'Perubahan Kartu Keluarga',aliases:['PERUBAHAN_KK','PERUBAHAN_KELUARGA']}
+  ];
+  const statuses=['DRAFT','DIAJUKAN','SUBMITTED','DIVERIFIKASI','VERIFICATION','SELESAI','APPROVED','REJECTED','DITOLAK','DIARSIPKAN'];
+  host.innerHTML='<div class="notice"><b>Data Peristiwa Penduduk · '+esc(context.territory_name||'wilayah aktif')+'</b><br>Menampilkan pencatatan kelahiran, kematian, kedatangan, perpindahan, dan perubahan data/keluarga yang tersimpan di database SAD untuk organisasi dan wilayah aktif. Daftar tidak membuat atau mengarang data. Detail identitas dibuka satu per satu melalui pemeriksaan kewenangan.</div><section class="grid" id="populationEventStats"><div class="card"><span>Memuat ringkasan…</span><strong>—</strong></div></section><section class="panel live-panel"><div class="panelhead"><div><span class="eyebrow">REGISTER PERISTIWA</span><h2>Rincian perubahan status penduduk</h2></div><button class="btn" id="populationEventRefresh">↻ Segarkan</button></div><div class="live-body"><div class="formgrid"><div class="field"><label for="populationEventType">Jenis Peristiwa</label><select id="populationEventType"><option value="">Semua peristiwa</option>'+types.map(t=>'<option value="'+esc(t.key)+'">'+esc(t.label)+'</option>').join('')+'</select></div><div class="field"><label for="populationEventStatus">Status Proses</label><select id="populationEventStatus"><option value="">Semua status</option>'+statuses.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('')+'</select></div></div><p id="populationEventMessage" class="muted">Memeriksa database…</p><div id="populationEventTable" class="tablewrap"></div></div></section><div class="actions"><a class="btn" href="?view=peristiwa">Buka Register Peristiwa Penduduk</a><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan Wilayah</a></div>';
+  const stats=document.getElementById('populationEventStats');
+  const message=document.getElementById('populationEventMessage');
+  const table=document.getElementById('populationEventTable');
+  const base=()=>sb.schema('village').from('population_events').select('id,event_type,event_date,reference_number,status,source,authority,person_id,household_id,created_at,deleted_at',{count:'exact'}).eq('organization_id',organizationId).eq('territory_id',territoryId).is('deleted_at',null);
+  const countFor=async t=>{const {count,error}=await base().in('event_type',t.aliases).select('id',{count:'exact',head:true});return {count,error}};
+  const render=async()=>{
+   message.textContent='Memuat peristiwa sesuai wilayah aktif…';table.innerHTML='';
+   const counts=await Promise.all(types.map(async t=>({type:t,...await countFor(t)})));
+   stats.innerHTML=counts.map(x=>'<div class="card"><span>'+esc(x.type.label.toUpperCase())+'</span><strong>'+(x.error?'—':esc(x.count??0))+'</strong><small>'+(x.error?'Jumlah tidak dapat dibaca': 'Record sesuai organisasi dan wilayah aktif')+'</small></div>').join('');
+   const selectedType=document.getElementById('populationEventType').value;
+   const selectedStatus=document.getElementById('populationEventStatus').value;
+   let q=base();
+   const selected=types.find(t=>t.key===selectedType);
+   if(selected)q=q.in('event_type',selected.aliases);
+   if(selectedStatus)q=q.eq('status',selectedStatus);
+   const {data,error,count}=await q.order('event_date',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(100);
+   if(error){message.innerHTML='<span class="danger">Data peristiwa tidak dapat dimuat: '+esc(error.message)+'</span>';return}
+   message.textContent=(count??(data||[]).length)+' record ditemukan; maksimal 100 record terbaru ditampilkan. Data yang belum terverifikasi tetap ditandai sesuai statusnya.';
+   if(!data?.length){table.innerHTML='<div class="notice">Belum ada peristiwa penduduk yang tercatat untuk filter dan wilayah ini. Angka nol berarti tidak ada record yang dapat dibaca, bukan berarti tidak pernah terjadi peristiwa. Gunakan “Register Peristiwa Penduduk” untuk memasukkan laporan resmi.</div>';return}
+   const labelType=v=>{const t=types.find(x=>x.aliases.includes(String(v||'').toUpperCase()));return t?.label||String(v||'Belum ditentukan').replace(/_/g,' ')};
+   table.innerHTML='<table><thead><tr><th>Tanggal Peristiwa</th><th>Jenis</th><th>No. Referensi</th><th>Status</th><th>Sumber</th><th>Otoritas</th><th>Detail</th></tr></thead><tbody>'+data.map(r=>'<tr><td>'+esc(r.event_date||'—')+'</td><td>'+esc(labelType(r.event_type))+'</td><td>'+esc(r.reference_number||'—')+'</td><td><span class="statuspill">'+esc(r.status||'BELUM DITENTUKAN')+'</span></td><td>'+esc(r.source||'—')+'</td><td>'+esc(r.authority||'—')+'</td><td>'+(r.person_id?'<button class="btn" data-person-detail="'+esc(r.person_id)+'">Buka detail penduduk</button>':'<span class="muted">Belum tertaut ke ID penduduk</span>')+(r.household_id?'<small style="display:block">Keluarga tertaut: '+esc(r.household_id)+'</small>':'')+'</td></tr>').join('')+'</tbody></table>';
+   table.querySelectorAll('[data-person-detail]').forEach(btn=>btn.onclick=async()=>{
+    btn.disabled=true;const old=btn.textContent;btn.textContent='Memeriksa akses…';
+    const {data:person,error:personError}=await sb.rpc('get_person_detail',{p_person_id:btn.dataset.personDetail});
+    if(personError||!person?.length){alert('Detail tidak dapat dibuka: '+(personError?.message||'data tidak tersedia atau di luar kewenangan aktif.'));btn.disabled=false;btn.textContent=old;return}
+    const p=person[0],modal=document.getElementById('modal');
+    modal.classList.remove('hidden');
+    modal.innerHTML='<div class="modalcard"><div class="modalhead"><div><span class="eyebrow">DETAIL TERKENDALI</span><h2>Detail Penduduk</h2></div><button class="btn" id="closePersonDetail">Tutup</button></div><div class="notice">Identitas dibuka melalui endpoint berizin. NIK dan telepon ditampilkan dalam bentuk terbatas; akses dicatat ke audit trail.</div><section class="grid"><div class="card"><span>Nama</span><strong>'+esc(p.full_name||'—')+'</strong><small>Status: '+esc(p.status||'—')+'</small></div><div class="card"><span>NIK Terbatas</span><strong>'+esc(p.national_id_masked||'Tidak tersedia')+'</strong></div><div class="card"><span>Telepon Terbatas</span><strong>'+esc(p.phone_masked||'Tidak tersedia')+'</strong></div><div class="card"><span>Ruang Lingkup</span><strong>'+esc(p.access_reason||'Wilayah aktif')+'</strong><small>Detail keluarga/alamat tidak ditampilkan sebagai daftar massal.</small></div></section></div>';
+    document.getElementById('closePersonDetail').onclick=()=>modal.classList.add('hidden');
+   });
+  };
+  document.getElementById('populationEventRefresh').onclick=render;
+  document.getElementById('populationEventType').onchange=render;
+  document.getElementById('populationEventStatus').onchange=render;
+  await render();
+  return;
+ }
  if(m.summaryField){
   const {data,error}=await sb.schema('village').rpc('population_summary');const x=Array.isArray(data)?data[0]:data;const value=x?.[m.summaryField];
   host.innerHTML='<div class="notice '+(error?'danger':'success')+'"><b>'+esc(m.title)+'</b><br>'+esc(m.summaryDescription)+'</div><section class="grid"><div class="card"><span>'+esc(m.summaryLabel)+'</span><strong>'+(error||value===undefined||value===null?'—':esc(value))+'</strong><small>Ruang lingkup: '+esc(context.territory_name||'wilayah aktif')+'</small></div><div class="card"><span>ORGANISASI AKTIF</span><strong>'+esc(context.organization_name||'—')+'</strong><small>Perhitungan dibatasi konteks akses.</small></div></section>'+(error?'<div class="notice danger">Gagal membaca ringkasan aman: '+esc(error.message)+'</div>':'')+'<div class="actions"><a class="btn" href="?view=rtconnect">Kembali ke Ringkasan Wilayah</a></div>';
