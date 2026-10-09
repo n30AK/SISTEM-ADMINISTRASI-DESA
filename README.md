@@ -21,11 +21,11 @@ Konfigurasi rahasia harus disimpan di environment/secrets, bukan di-commit ke re
 
 ## Status integrasi saat ini
 
-- Database utama SAD berada pada proyek Supabase yang dikonfigurasi untuk aplikasi.
-- Proyek SAD saat ini memiliki tabel RT/RW lokal/pilot. Keberadaan tabel dan record tersebut **tidak membuktikan sinkronisasi langsung** dengan database eksternal RT/RW CONNECT.
-- Koneksi ke proyek database RT/RW CONNECT eksternal, pemetaan tenant/wilayah, autentikasi server-to-server, dan uji sinkronisasi belum terverifikasi melalui koneksi proyek yang tersedia.
-- Jangan menganggap data pilot sebagai data resmi atau menggunakannya untuk keputusan pemerintahan sebelum asal data diverifikasi.
-- Modul pemerintahan seperti Perangkat Desa, Surat, APB Desa/Keuangan, Pembangunan, dan Aset tetap merupakan domain data SAD; data RT/RW hanya masuk ke domain yang sesuai melalui integrasi yang disetujui.
+- SAD dan RT/RW-SID CONNECT v2.0 menggunakan proyek Supabase yang sama (project ref: gzdusguveeeflmlvvmwe), sesuai konfigurasi repository RT/RW-SID CONNECT. Integrasi data berada dalam database bersama dengan pembatasan organisasi/wilayah dan RLS.
+- Layar Penduduk/Keluarga menggunakan RPC agregat yang menghitung data berdasarkan wilayah aktif dari relasi alamat, keluarga, domisili, serta status verifikasi RT.
+- Ringkasan juga menampilkan jumlah record pada tabel RT/RW CONNECT untuk permohonan layanan, observasi kesehatan, profil pendidikan, dan profil usaha.
+- Jumlah record bukan otomatis jumlah warga unik atau bukti bahwa setiap record sudah terverifikasi. Data dengan status menunggu verifikasi harus dibedakan dari data terverifikasi.
+- Modul Perangkat Desa, Surat, Keuangan/APB Desa, Pembangunan, dan Aset tetap merupakan domain data SAD; data RT/RW tidak boleh disalin ke modul tersebut tanpa aturan pemetaan dan persetujuan yang sesuai.
 
 ## Catatan
 
