@@ -1,0 +1,1 @@
+grant execute on function village.enforce_sad_write_permissions() to authenticated;
