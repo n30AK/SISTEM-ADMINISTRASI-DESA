@@ -136,7 +136,7 @@ async function dashboard(){
 async function listModule(key){
  const c=cfg[key]; const canCreate=can('data.create'); const canUpdate=can('data.update'); document.getElementById('title').textContent=c.title;
  let query=sb.schema('village').from(c.table).select('*',{count:'exact'}).eq('organization_id',context.organization_id);query=applyTerritoryScope(query).is('deleted_at',null).order('created_at',{ascending:false}).limit(50);const {data,error,count}=await query;
- let table=(scopeRefreshMessage?'<div class="notice" role="status">'+esc(scopeRefreshMessage)+'</div>':'')+'<div class="notice"><b>Data Center '+esc(c.title)+'</b><br>Ringkasan dan daftar data dibatasi pada organisasi serta wilayah aktif. Formulir hanya dibuka ketika Anda memilih “＋ Form Baru” atau “Buka”.</div><section class="grid"><div class="card"><span>TOTAL RECORD AKTIF</span><strong>'+esc(error?'—':(count??0))+'</strong><small>Record sesuai organisasi dan wilayah aktif.</small></div><div class="card"><span>DITAMPILKAN</span><strong>'+esc((data||[]).length)+'</strong><small>Maksimal 50 record terbaru per halaman.</small></div><div class="card"><span>ORGANISASI AKTIF</span><strong style="font-size:16px;overflow-wrap:anywhere">'+esc(context.organization_name||context.organization_id)+'</strong><small>Konteks akses saat ini.</small></div><button type=\"button\" class=\"card scope-card\" id=\"scopeOpen\" title=\"Muat ulang data sesuai wilayah aktif\"><span>WILAYAH AKTIF</span><strong style=\"font-size:16px;overflow-wrap:anywhere\">'+esc(context.territory_name||context.territory_id)+'</strong><small>Ruang lingkup data yang sedang dibuka.</small><small>↻ Klik untuk memuat data wilayah ini.</small></button></section><div class="toolbar"><div class="left"><span class="statuspill">'+esc(c.table)+'</span></div><div class="right">'+(canCreate?'<button class=\"btn primary\" id=\"new\">＋ Form Baru</button>':'')+'<button class="btn" id="reload">↻ Segarkan</button></div></div>';
+ let table=(scopeRefreshMessage?'<div class="notice" role="status">'+esc(scopeRefreshMessage)+'</div>':'')+'<div class="notice"><b>Data Center '+esc(c.title)+'</b><br>Ringkasan dan daftar data dibatasi pada organisasi serta wilayah aktif. Formulir hanya dibuka ketika Anda memilih “＋ Form Baru” atau “Buka”.</div><section class="grid"><div class="card"><span>TOTAL RECORD AKTIF</span><strong>'+esc(error?'—':(count??0))+'</strong><small>Record sesuai organisasi dan wilayah aktif.</small></div><div class="card"><span>DITAMPILKAN</span><strong>'+esc((data||[]).length)+'</strong><small>Maksimal 50 record terbaru per halaman.</small></div><div class="card"><span>ORGANISASI AKTIF</span><strong style="font-size:16px;overflow-wrap:anywhere">'+esc(context.organization_name||context.organization_id)+'</strong><small>Konteks akses saat ini.</small></div><button type=\"button\" class=\"card scope-card\" id=\"scopeOpen\" title=\"Muat ulang data sesuai wilayah aktif\"><span>WILAYAH AKTIF</span><strong style=\"font-size:16px;overflow-wrap:anywhere\">'+esc(context.territory_name||context.territory_id)+'</strong><small>Ruang lingkup data yang sedang dibuka.</small><small>↻ Klik untuk memuat ulang data wilayah ini.</small></button></section><div class="toolbar"><div class="left"><span class="statuspill">'+esc(c.table)+'</span></div><div class="right">'+(canCreate?'<button class=\"btn primary\" id=\"new\">＋ Form Baru</button>':'')+'<button class="btn" id="reload">↻ Segarkan</button></div></div>';
  if(error){table+='<div class="notice danger">Gagal memuat data: '+esc(error.message)+'</div>'}
  else {
    table+='<div class="panel"><div class="tablewrap"><table><thead><tr>'+c.fields.map(f=>'<th>'+esc(f[1])+'</th>').join('')+'<th>Aksi</th></tr></thead><tbody>';
@@ -146,7 +146,38 @@ async function listModule(key){
  document.getElementById('content').innerHTML='<section class="module-list">'+table+'</section>';
  const newButton=document.getElementById('new');if(newButton)newButton.onclick=()=>formModule(key,null,false);
  document.getElementById('reload').onclick=()=>listModule(key);
- const scopeOpen=document.getElementById('scopeOpen');if(scopeOpen)scopeOpen.onclick=async()=>{scopeOpen.disabled=true;scopeRefreshMessage='Memuat ulang konteks dan data wilayah…';scopeOpen.querySelector('small:last-child').textContent='⏳ Sedang memuat data wilayah…';try{await getContext();if(!context?.organization_id){throw new Error('Organisasi aktif tidak tersedia. Silakan keluar lalu masuk kembali.')}if(!context?.territory_id){throw new Error('Wilayah aktif belum ditetapkan untuk akun ini.')}await loadCurrentPermissions();scopeRefreshMessage='Data wilayah '+(context.territory_name||context.territory_id)+' berhasil dimuat ulang.';await listModule(key);document.querySelector('.tablewrap')?.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){scopeRefreshMessage='';const box=document.getElementById('scopeOpen');if(box){box.disabled=false;box.querySelector('small:last-child').textContent='↻ Klik untuk mencoba kembali.'}const notice=document.createElement('div');notice.className='notice danger';notice.textContent='Gagal memuat data wilayah: '+(e?.message||'Kesalahan tidak diketahui');document.getElementById('content').prepend(notice)}};
+ const scopeOpen=document.getElementById('scopeOpen');if(scopeOpen)scopeOpen.onclick=async()=>{
+  const keyForReload=key;
+  scopeOpen.disabled=true;
+  scopeOpen.querySelector('small:last-child').textContent='⏳ Mengambil data…';
+  const content=document.getElementById('content');
+  let status=document.getElementById('scopeLoadStatus');
+  if(!status){status=document.createElement('div');status.id='scopeLoadStatus';status.className='notice';content.prepend(status);}
+  status.className='notice';status.textContent='Sedang memuat ulang data '+(context?.territory_name||'wilayah aktif')+'…';
+  try{
+    const rows=await getContext();
+    if(!rows.length||!context?.organization_id)throw new Error('Organisasi aktif tidak tersedia. Keluar lalu masuk kembali, kemudian periksa penugasan administrator.');
+    if(!context?.territory_id)throw new Error('Wilayah aktif belum ditetapkan pada penugasan akun ini.');
+    await loadCurrentPermissions();
+    const cfgForScope=cfg[keyForReload];
+    let q=sb.schema('village').from(cfgForScope.table).select('id',{count:'exact',head:true}).eq('organization_id',context.organization_id).is('deleted_at',null);
+    q=applyTerritoryScope(q);
+    const result=await q;
+    if(result.error)throw new Error(result.error.message);
+    const total=result.count??0;
+    scopeRefreshMessage='Wilayah '+(context.territory_name||context.territory_id)+' dimuat ulang. '+total+' record aktif ditemukan.';
+    await listModule(keyForReload);
+    status=document.getElementById('scopeLoadStatus');
+    if(status){status.className='notice '+(total===0?'':'success');status.textContent=total===0?'Konteks wilayah berhasil dimuat, tetapi belum ada data aktif pada modul '+(cfgForScope.title||keyForReload)+'. Gunakan “＋ Form Baru” untuk memasukkan data resmi, atau periksa proses impor yang disetujui.':'Berhasil memuat '+total+' record aktif untuk wilayah '+(context.territory_name||context.territory_id)+'.';}
+    document.querySelector('.tablewrap')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    const currentBox=document.getElementById('scopeOpen');if(currentBox){currentBox.disabled=false;currentBox.querySelector('small:last-child').textContent='↻ Klik untuk mencoba kembali.'}
+    const currentContent=document.getElementById('content');
+    let errorNotice=document.getElementById('scopeLoadStatus');
+    if(!errorNotice){errorNotice=document.createElement('div');errorNotice.id='scopeLoadStatus';currentContent.prepend(errorNotice);}
+    errorNotice.className='notice danger';errorNotice.textContent='Data wilayah tidak berhasil dimuat: '+(e?.message||'Kesalahan tidak diketahui');
+  }
+};
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
 }
 async function loadServiceOptions(selected=''){
