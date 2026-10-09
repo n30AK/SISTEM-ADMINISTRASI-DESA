@@ -286,7 +286,7 @@ async function rtRwDashboard(){
  try{const r=await sb.schema('village').rpc('population_summary');if(r.error)throw r.error;summary=Array.isArray(r.data)?r.data[0]:r.data;if(!summary)throw new Error('Ringkasan wilayah tidak tersedia.')}catch(e){summaryError=e?.message||'Gagal membaca ringkasan'}
  const sources=[
   {key:'rtpermohonan',table:'rt_service_requests',label:'Permohonan RT/RW',count:summary?.rt_service_requests,fields:['request_number','service_type','status','source','created_at'],privacy:'Data formulir/payload dan identitas pemohon tidak ditampilkan di ringkasan.'},
-  {key:'rtkegiatan',table:'community_events',label:'Kegiatan & Musyawarah',fields:['name','event_type','event_date','location','status'],privacy:'Kegiatan sesuai wilayah aktif.'},
+  {key:'rtkegiatan',table:'community_events',label:'Kegiatan & Musyawarah',fields:['name','event_type','event_date','location','status'],org:true,privacy:'Kegiatan sesuai wilayah aktif.'},
   {key:'rtekonomi',table:'rt_business_profiles',label:'UMKM & Usaha',count:summary?.rt_business_profiles,fields:['business_name','business_type','sector','products_services','verification_status'],publicOnly:true,privacy:'Hanya usaha yang ditandai dapat ditampilkan secara publik.'},
   {key:'rtkesehatan',table:'rt_health_observations',label:'Kesehatan (agregat)',count:summary?.rt_health_observations,aggregate:true,privacy:'Data kesehatan individual bersifat sensitif; dashboard hanya menampilkan jumlah, bukan nama, catatan, atau identitas pasien.'},
   {key:'rtpendidikan',table:'rt_education_profiles',label:'Pendidikan & Keterampilan',count:summary?.rt_education_profiles,aggregate:true,privacy:'Ringkasan jumlah saja pada dashboard; data individu memerlukan akses khusus.'},
@@ -300,6 +300,7 @@ async function rtRwDashboard(){
  const counts={};
  await Promise.all(sources.filter(s=>s.count===undefined&&!s.aggregate).map(async s=>{
   let q=sb.schema('public').from(s.table).select('id',{count:'exact',head:true}).eq('territory_id',territoryId);
+  if(s.org)q=q.or('organization_id.is.null,organization_id.eq.'+organizationId);
   if(s.publicOnly)q=q.eq('public_visible',true);
   const {count,error}=await q;counts[s.key]=error?null:count;
  }));
