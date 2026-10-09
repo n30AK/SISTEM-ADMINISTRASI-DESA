@@ -169,10 +169,10 @@ async function listModule(key){
     if(result.error)throw new Error(result.error.message);
     const total=result.count??0;
     const {data:sourceRows,error:sourceError}=await sb.schema('village').rpc('population_summary');
-    if(sourceError)throw new Error('Data modul terbaca, tetapi ringkasan tabel RT/RW proyek SAD gagal dimuat: '+sourceError.message);
+    if(sourceError)throw new Error('Data modul terbaca, tetapi ringkasan RT/RW CONNECT gagal dimuat: '+sourceError.message);
     const source=Array.isArray(sourceRows)?sourceRows[0]:sourceRows;
-    if(!source)throw new Error('Ringkasan tabel RT/RW proyek SAD tidak mengembalikan konteks wilayah.');
-    const sourceText='Record pada tabel RT/RW di proyek SAD (sumber eksternal belum terverifikasi): '+source.rt_service_requests+' permohonan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, dan '+source.rt_business_profiles+' profil usaha.';
+    if(!source)throw new Error('Ringkasan RT/RW CONNECT tidak mengembalikan konteks wilayah.');
+    const sourceText='Data RT/RW CONNECT pada wilayah ini: '+source.rt_service_requests+' permohonan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, dan '+source.rt_business_profiles+' profil usaha.';
     scopeRefreshMessage=(total===0
       ?'Pemeriksaan wilayah selesai. Belum ada record pada modul SAD '+moduleCfg.title+'. '
       :'Pemeriksaan wilayah selesai: '+total+' record modul SAD '+moduleCfg.title+'. ')
@@ -275,7 +275,7 @@ async function populationCenter(view){
   return;
  }
  const generated=x.generated_at?new Date(x.generated_at).toLocaleString('id-ID'):'baru saja';
- host.innerHTML='<div class="notice"><b>Data Center '+esc(labels[view])+'</b><br>Ringkasan dihitung untuk organisasi <b>'+esc(context.organization_name||'aktif')+'</b> dan wilayah <b>'+esc(context.territory_name||'aktif')+'</b>. Data identitas pribadi tidak ditampilkan sebagai daftar massal.</div><div class="notice danger"><b>Status sumber data: perlu verifikasi.</b><br>Angka di bawah berasal dari record yang saat ini ada di proyek Supabase SAD. Akses ke proyek database RT/RW CONNECT eksternal belum terverifikasi, sehingga angka ini belum boleh dianggap bukti sinkronisasi live atau data resmi desa.</div>'+
+ host.innerHTML='<div class="notice"><b>Data Center '+esc(labels[view])+'</b><br>Ringkasan dihitung untuk organisasi <b>'+esc(context.organization_name||'aktif')+'</b> dan wilayah <b>'+esc(context.territory_name||'aktif')+'</b>. Data identitas pribadi tidak ditampilkan sebagai daftar massal.</div><div class="notice"><b>Koneksi database: bersama.</b><br>SAD dan RT/RW-SID CONNECT menggunakan proyek Supabase yang sama. Ringkasan ini membaca data berdasarkan wilayah aktif. Status verifikasi setiap record tetap harus dihormati; data yang belum diverifikasi tidak boleh dianggap data resmi.</div>'+
  '<section class="grid">'+
  '<div class="card"><span>JUMLAH KELUARGA</span><strong>'+esc(x.total_households)+'</strong><small>Keluarga yang alamatnya berada pada wilayah aktif.</small></div>'+
  '<div class="card"><span>KELUARGA AKTIF</span><strong>'+esc(x.active_households)+'</strong><small>Record keluarga berstatus aktif.</small></div>'+
@@ -284,12 +284,12 @@ async function populationCenter(view){
  '<div class="card"><span>TERVERIFIKASI RT</span><strong>'+esc(x.verified_persons)+'</strong><small>Domisili dengan status RT_VERIFIED.</small></div>'+
  '<div class="card"><span>MENUNGGU VERIFIKASI</span><strong>'+esc(x.pending_verification_persons)+'</strong><small>Domisili yang masih berstatus SUBMITTED; jangan dianggap terverifikasi.</small></div>'+
  '</section>'+
- '<section class="panel live-panel"><div class="panelhead"><div><span class="eyebrow">PEMERIKSAAN SUMBER</span><h2>Record RT/RW pada proyek SAD</h2></div><button class="btn" id="populationRefresh">↻ Segarkan Data</button></div><div class="live-body"><div class="live-grid">'+
+ '<section class="panel live-panel"><div class="panelhead"><div><span class="eyebrow">PEMERIKSAAN SUMBER</span><h2>Data RT/RW CONNECT pada wilayah aktif</h2></div><button class="btn" id="populationRefresh">↻ Segarkan Data</button></div><div class="live-body"><div class="live-grid">'+
  '<div><b>'+esc(x.rt_service_requests)+'</b><small>Permohonan layanan RT/RW</small></div>'+
  '<div><b>'+esc(x.rt_health_observations)+'</b><small>Observasi kesehatan</small></div>'+
  '<div><b>'+esc(x.rt_education_profiles)+'</b><small>Profil pendidikan</small></div>'+
  '<div><b>'+esc(x.rt_business_profiles)+'</b><small>Profil usaha</small></div>'+
- '</div><p class="muted">Angka ini adalah jumlah record pada tabel RT/RW yang ada di proyek SAD, bukan jumlah orang unik. Ini belum membuktikan sinkronisasi langsung dengan database RT/RW CONNECT eksternal. Data RT/RW juga tidak otomatis disalin menjadi data perangkat desa, anggaran, surat, atau aset; setiap modul memakai sumber data sesuai kewenangannya.</p><p class="muted">Terakhir dihitung: '+esc(generated)+'</p></div></section>';
+ '</div><p class="muted">Angka ini adalah jumlah record pada tabel RT/RW CONNECT di database bersama, bukan jumlah orang unik. Data RT/RW juga tidak otomatis disalin menjadi data perangkat desa, anggaran, surat, atau aset; setiap modul memakai sumber data sesuai kewenangannya.</p><p class="muted">Terakhir dihitung: '+esc(generated)+'</p></div></section>';
  document.getElementById('populationRefresh').onclick=()=>populationCenter(view);
 }
 async function integrationCenter(){
