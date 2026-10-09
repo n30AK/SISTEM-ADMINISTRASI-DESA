@@ -433,8 +433,12 @@ async function rtRwModule(view){
   const countFor=async t=>{const {count,error}=await base().in('event_type',t.aliases).select('id',{count:'exact',head:true});return {count,error}};
   const render=async()=>{
    message.textContent='Memuat peristiwa sesuai wilayah aktif…';table.innerHTML='';
-   const counts=await Promise.all(types.map(async t=>({type:t,...await countFor(t)})));
-   stats.innerHTML=counts.map(x=>'<div class="card"><span>'+esc(x.type.label.toUpperCase())+'</span><strong>'+(x.error?'—':esc(x.count??0))+'</strong><small>'+(x.error?'Jumlah tidak dapat dibaca': 'Record sesuai organisasi dan wilayah aktif')+'</small></div>').join('');
+   const [summaryResult,counts]=await Promise.all([
+    sb.schema('village').rpc('population_summary').then(r=>({data:Array.isArray(r.data)?r.data[0]:r.data,error:r.error})),
+    Promise.all(types.map(async t=>({type:t,...await countFor(t)})))
+   ]);
+   const summary=summaryResult.data||{};
+   stats.innerHTML='<div class="card"><span>PENDUDUK AKTIF TERHUBUNG</span><strong>'+(summaryResult.error||summary.total_persons===undefined?'—':esc(summary.total_persons))+'</strong><small>Agregat dari ringkasan aman untuk wilayah aktif.</small></div><div class="card"><span>RUMAH TANGGA</span><strong>'+(summaryResult.error||summary.total_households===undefined?'—':esc(summary.total_households))+'</strong><small>Jumlah rumah tangga pada wilayah aktif.</small></div>'+counts.map(x=>'<div class="card"><span>'+esc(x.type.label.toUpperCase())+'</span><strong>'+(x.error?'—':esc(x.count??0))+'</strong><small>'+(x.error?'Jumlah tidak dapat dibaca': 'Record sesuai organisasi dan wilayah aktif')+'</small></div>').join('');
    const selectedType=document.getElementById('populationEventType').value;
    const selectedStatus=document.getElementById('populationEventStatus').value;
    let q=base();
