@@ -1,36 +1,33 @@
-# Architecture — Sistem Administrasi Desa
+# Arsitektur — Sistem Administrasi Desa (SAD)
 
-## Data ownership
+## Kepemilikan data
 
-OpenSID remains the source-compatible operational data layer for legacy/imported village administration data. RT/RW CONNECT Supabase remains the governed shared platform for identity, territory, organization, access control, and cross-system exchange.
+SAD adalah aplikasi mandiri dengan database operasional sendiri di Supabase. SAD tidak menggunakan, mengubah, atau bergantung pada OpenSID.
 
-### Canonical domains
-- Identity: `public.persons`, `public.households`
-- Territory: `public.territories`
-- Organization/access: `public.organizations`, `public.role_assignments`
-- Village administration: `village.*`
-- Cross-system exchange: `public.exchange_*`
-- GPFFE: `public.gpffe_economic_exchange`
+### Domain utama
+- Identitas dan keluarga: skema serta tabel kanonis SAD/RT-RW CONNECT.
+- Wilayah: `public.territories` dan master geospasial yang telah diverifikasi.
+- Organisasi dan akses: `public.organizations`, `public.role_assignments`, role, dan permission.
+- Administrasi desa: tabel operasional pada skema `village.*`.
+- RT/RW CONNECT: layanan wilayah, infrastruktur, lingkungan, kegiatan, pengaduan, dan ringkasan warga.
+- GPFFE: pertukaran data ekonomi melalui kontrak data yang terdokumentasi.
+- Audit: perubahan dan pertukaran data harus dapat ditelusuri.
 
-## OpenSID synchronization
+## Integrasi RT/RW CONNECT dan GPFFE
 
-OpenSID MySQL is external to Supabase. Synchronization must therefore be explicit and auditable.
+SAD tetap menjadi aplikasi administrasi inti. RT/RW CONNECT dan GPFFE merupakan sistem terpisah yang berintegrasi melalui API atau mekanisme pertukaran data yang terkontrol, tervalidasi, dan diaudit. Jangan menggabungkan database antar-sistem secara langsung tanpa kontrak data, otorisasi, dan pembatasan tenant.
 
-Flow:
+## GIS dan data wilayah
 
-OpenSID MySQL
-→ export/adapter
-→ authenticated sync endpoint
-→ validation
-→ canonical RT/RW CONNECT records
-→ governed exchange
-→ GPFFE
+- Seluruh permintaan data harus mengikuti konteks organisasi dan wilayah aktif.
+- Geometri harus memiliki SRID yang diketahui, tipe geometri yang diizinkan, dan lolos `ST_IsValid`.
+- Koordinat alamat individual tidak ditampilkan sebagai marker massal di peta administrasi.
+- Geometri demonstrasi harus selalu diberi label DEMO dan tidak boleh dipresentasikan sebagai batas resmi.
+- Batas administrasi resmi baru dapat diaktifkan setelah sumber geometri resmi diverifikasi dan dipetakan ke ID wilayah SAD/RT-RW CONNECT.
 
-Every batch is recorded in `public.opensid_sync_batches`.
+## Aturan produksi
 
-No service-role key is placed in the browser.
-No direct public connection to the OpenSID MySQL server is required.
-
-## Production rule
-
-Do not perform destructive migration of OpenSID tables. Map first, validate, then promote.
+- Jangan menggunakan data fiktif sebagai data pemerintahan resmi.
+- Simpan rahasia hanya di environment/secrets, bukan di repository atau frontend.
+- Perubahan skema dilakukan melalui migrasi yang terdokumentasi.
+- Keberhasilan CI tidak dengan sendirinya membuktikan deployment live atau integrasi data telah terverifikasi.
