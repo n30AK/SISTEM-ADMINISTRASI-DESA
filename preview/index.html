@@ -294,8 +294,10 @@ async function populationCenter(view){
 }
 async function integrationCenter(){
  document.getElementById('title').textContent='Integrasi RT/RW CONNECT + GPFFE';
+ const {data:summaryRows,error:summaryError}=await sb.schema('village').rpc('population_summary');
+ const summary=Array.isArray(summaryRows)?summaryRows[0]:summaryRows;
  const checks=[
-  ['Konteks organisasi','RPC my_context','my_context'],
+  ['Konteks organisasi','SAD / Supabase','my_context'],
   ['Data RT/RW — layanan','RT/RW CONNECT','rt_service_requests'],
   ['Data RT/RW — kesehatan','RT/RW CONNECT','rt_health_observations'],
   ['Data RT/RW — pendidikan','RT/RW CONNECT','rt_education_profiles'],
@@ -303,14 +305,40 @@ async function integrationCenter(){
   ['GPFFE — pertukaran ekonomi','GPFFE','gpffe_economic_exchange'],
   ['GPFFE — intelligence view','GPFFE','v_intelligence_gpffe']
  ];
+ const rtFields={
+  rt_service_requests:'rt_service_requests',
+  rt_health_observations:'rt_health_observations',
+  rt_education_profiles:'rt_education_profiles',
+  rt_business_profiles:'rt_business_profiles'
+ };
  let rows='';
  for(const [label,source,target] of checks){
-  if(target==='my_context'){const {data,error}=await sb.rpc('my_context');rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(error?'danger':'success')+'">'+(error?'GAGAL':'TERHUBUNG')+'</span></td><td>'+esc(error?.message||((data||[]).length+' konteks'))+'</td></tr>';continue}
-  if(target==='gpffe_economic_exchange'){const {data,error}=await sb.from('exchange_datasets').select('id').eq('source_system','GPFFE').eq('active',true).limit(1);rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(error?'danger':'success')+'">'+(error?'GAGAL':'TERKONFIGURASI')+'</span></td><td>'+esc(error?.message||(data?.length?'Dataset GPFFE aktif terdaftar; payload mentah tidak dihitung lintas territory.':'Belum ada dataset GPFFE aktif.'))+'</td></tr>';continue}
-  const {count,error}=await sb.schema('public').from(target).select('*',{count:'exact',head:true});
-  rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(error?'danger':'success')+'">'+(error?'GAGAL':'TERSEDIA')+'</span></td><td>'+esc(error?.message||((count??0)+' baris dapat diakses melalui Data API'))+'</td></tr>';
+  if(target==='my_context'){
+   const {data,error}=await sb.rpc('my_context');
+   rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(error?'danger':'success')+'">'+(error?'GAGAL':'TERHUBUNG')+'</span></td><td>'+esc(error?.message||((data||[]).length+' konteks aktif'))+'</td></tr>';
+   continue;
+  }
+  if(rtFields[target]){
+   const n=summary?.[rtFields[target]];
+   const failed=!!summaryError||!summary;
+   rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(failed?'danger':(Number(n)>0?'success':''))+'">'+(failed?'GAGAL':(Number(n)>0?'DATA TERSEDIA':'KOSONG'))+'</span></td><td>'+esc(failed?(summaryError?.message||'Ringkasan wilayah tidak tersedia'):(Number(n)+' record pada wilayah aktif'))+'</td></tr>';
+   continue;
+  }
+  if(target==='gpffe_economic_exchange'){
+   const [{count,error},{data:datasets,error:datasetError}]=await Promise.all([
+    sb.schema('public').from('gpffe_economic_exchange').select('id',{count:'exact',head:true}),
+    sb.from('exchange_datasets').select('id,dataset_code').eq('consumer_system','GPFFE').eq('active',true)
+   ]);
+   const failed=!!error||!!datasetError;
+   const status=failed?'GAGAL':((count||0)>0?'DATA TERSEDIA':((datasets||[]).length>0?'TERKONFIGURASI · BELUM ADA EVENT':'BELUM DIKONFIGURASI'));
+   rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(failed?'danger':((count||0)>0?'success':''))+'">'+status+'</span></td><td>'+esc(failed?(error?.message||datasetError?.message):((count||0)+' event ekonomi; '+((datasets||[]).length)+' dataset aktif untuk GPFFE'))+'</td></tr>';
+   continue;
+  }
+  const {count,error}=await sb.schema('public').from(target).select('id',{count:'exact',head:true});
+  const hasData=(count||0)>0;
+  rows+='<tr><td>'+esc(label)+'</td><td>'+esc(source)+'</td><td><span class="statuspill '+(error?'danger':(hasData?'success':''))+'">'+(error?'GAGAL':(hasData?'DATA TERSEDIA':'KOSONG'))+'</span></td><td>'+esc(error?.message||((count??0)+' record pada view intelligence'))+'</td></tr>';
  }
- document.getElementById('content').innerHTML='<div class="notice"><b>Integration Health.</b> Sistem ini menggunakan RT/RW CONNECT dan GPFFE sebagai lapisan integrasi. OpenSID tidak menjadi runtime dependency. Untuk GPFFE, health check tidak menghitung payload mentah lintas wilayah; sistem hanya memeriksa metadata dataset dan intelligence layer.</div><section class="panel"><div class="toolbar"><div class="left"><span class="statuspill">HEALTH CHECK</span></div><div class="right"><button class="btn primary" id="integrationRefresh">Uji Ulang</button></div></div><div class="tablewrap"><table><thead><tr><th>Komponen</th><th>Sumber</th><th>Status</th><th>Hasil</th></tr></thead><tbody>'+rows+'</tbody></table></div></section><section class="grid"><div class="card"><span>RT/RW CONNECT</span><strong>Data sumber warga</strong><small>Data layanan, kesehatan, pendidikan, ekonomi, lingkungan dan input perencanaan dibaca sesuai kewenangan.</small></div><div class="card"><span>GPFFE</span><strong>Pertukaran data terkontrol</strong><small>Exchange harus aggregate-only bila diwajibkan, memiliki lineage, klasifikasi dan approval status.</small></div><div class="card"><span>GOVERNANCE</span><strong>Tanpa bypass RLS</strong><small>Integrasi tidak boleh melewati organisasi, territory, role atau audit trail.</small></div></section>';
+ document.getElementById('content').innerHTML='<div class="notice"><b>Integration Health.</b> SAD dan RT/RW-SID CONNECT menggunakan proyek Supabase yang sama. Pemeriksaan RT/RW dibatasi ke wilayah aktif melalui ringkasan aman. GPFFE dipisahkan antara konfigurasi dataset dan event ekonomi yang benar-benar diterima; dataset aktif saja bukan bukti data masuk.</div><section class="panel"><div class="toolbar"><div class="left"><span class="statuspill">HEALTH CHECK</span></div><div class="right"><button class="btn primary" id="integrationRefresh">Uji Ulang</button></div></div><div class="tablewrap"><table><thead><tr><th>Komponen</th><th>Sumber</th><th>Status</th><th>Hasil</th></tr></thead><tbody>'+rows+'</tbody></table></div></section><section class="grid"><div class="card"><span>RT/RW CONNECT</span><strong>Data sumber wilayah</strong><small>Permohonan layanan, kesehatan, pendidikan, dan usaha dihitung sesuai territory aktif.</small></div><div class="card"><span>GPFFE</span><strong>Pertukaran data terkontrol</strong><small>Dataset dan event yang diterima ditampilkan terpisah; tidak ada klaim data aktif jika inbox kosong.</small></div><div class="card"><span>GOVERNANCE</span><strong>Tanpa bypass RLS</strong><small>Integrasi tidak boleh melewati organisasi, territory, role atau audit trail.</small></div></section>';
  document.getElementById('integrationRefresh').onclick=integrationCenter;
 }
 
