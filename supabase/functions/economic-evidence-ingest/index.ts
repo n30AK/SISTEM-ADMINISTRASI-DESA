@@ -28,7 +28,30 @@ async function sign(secret: string, value: string) {
 }
 
 function validDate(value: unknown) {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(value + "T00:00:00.000Z");
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+async function readBodyLimited(req: Request, maxBytes: number): Promise<string> {
+  if (!req.body) return "";
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      throw new Error("PAYLOAD_TOO_LARGE");
+    }
+    chunks.push(value);
+  }
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.byteLength; }
+  return new TextDecoder("utf-8", { fatal: true }).decode(merged);
 }
 
 Deno.serve(async (req: Request) => {
@@ -44,7 +67,7 @@ Deno.serve(async (req: Request) => {
   const timestamp = req.headers.get("X-Timestamp") ?? "";
   const signature = req.headers.get("X-Signature") ?? "";
   if (integrationId !== "jolie-economic-evidence-v1" || !uuidPattern.test(eventHeader)) return fail(401, "INVALID_INTEGRATION_HEADERS");
-  if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/.test(timestamp)) return fail(401, "INVALID_TIMESTAMP");
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(timestamp)) return fail(401, "INVALID_TIMESTAMP");
   const parsedTimestamp = Date.parse(timestamp);
   if (!Number.isFinite(parsedTimestamp) || Math.abs(Date.now() - parsedTimestamp) > 5 * 60 * 1000) return fail(401, "TIMESTAMP_OUTSIDE_WINDOW");
 
