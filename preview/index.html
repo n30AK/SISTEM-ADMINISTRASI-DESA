@@ -154,8 +154,11 @@ async function listModule(key){
    event.preventDefault();
    if(scopeOpen.dataset.busy==='1')return;
    scopeOpen.dataset.busy='1';scopeOpen.disabled=true;
-   const small=scopeOpen.querySelector('small:last-child');
-   if(small)small.textContent='⏳ Memuat data wilayah…';
+   const initialSmall=scopeOpen.querySelector('small:last-child');
+   if(initialSmall)initialSmall.textContent='⏳ Memuat ulang data wilayah…';
+   scopeRefreshMessage='Sedang memuat ulang data modul untuk wilayah '+(context?.territory_name||'aktif')+'…';
+   let sourceText='Ringkasan RT/RW CONNECT belum tersedia.';
+   let summaryError='';
    try{
     const rows=await getContext();
     const organizationId=normalizeScopeId(context?.organization_id);
@@ -163,36 +166,26 @@ async function listModule(key){
     if(!rows.length||!organizationId)throw new Error('Organisasi aktif tidak tersedia. Keluar lalu masuk kembali dan periksa penugasan administrator.');
     if(!territoryId)throw new Error('Wilayah aktif belum ditetapkan. Data tidak dimuat lintas wilayah.');
     await loadCurrentPermissions();
-    const moduleCfg=cfg[key];
-    let scopeQuery=sb.schema('village').from(moduleCfg.table).select('id',{count:'exact',head:true})
-      .eq('organization_id',organizationId).eq('territory_id',territoryId).is('deleted_at',null);
-    if(key!=='layanan')scopeQuery=scopeQuery.neq('status','DEMO');
-    const result=await scopeQuery;
-    if(result.error)throw new Error(result.error.message);
-    const total=result.count??0;
-    // Refresh the active SAD module first. A failed auxiliary RT/RW summary must not
-    // prevent the module's own scoped data from reloading.
+
+    // Refresh the module immediately; do not block SAD data on an auxiliary integration check.
     await listModule(key);
-    let sourceText='Ringkasan RT/RW CONNECT belum tersedia.';
-    let summaryError='';
+
     try{
      const {data:sourceRows,error:sourceError}=await sb.schema('village').rpc('population_summary');
      if(sourceError)throw new Error(sourceError.message);
      const source=Array.isArray(sourceRows)?sourceRows[0]:sourceRows;
      if(!source)throw new Error('Ringkasan tidak mengembalikan konteks wilayah.');
-     sourceText='Data RT/RW CONNECT pada wilayah ini: '+source.rt_service_requests+' permohonan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, dan '+source.rt_business_profiles+' profil usaha.';
+     sourceText='RT/RW CONNECT untuk wilayah '+(context.territory_name||'aktif')+': '+source.rt_service_requests+' permohonan layanan, '+source.rt_health_observations+' observasi kesehatan, '+source.rt_education_profiles+' profil pendidikan, '+source.rt_business_profiles+' profil usaha.';
     }catch(summaryFailure){
-     summaryError=' Ringkasan RT/RW CONNECT gagal dimuat: '+(summaryFailure?.message||'kesalahan tidak diketahui')+'. Data modul SAD tetap dimuat sesuai scope.';
+     summaryError=' Pemeriksaan RT/RW CONNECT tidak tersedia: '+(summaryFailure?.message||'kesalahan tidak diketahui')+'. Data modul SAD tetap dimuat sesuai wilayah aktif.';
     }
-    scopeRefreshMessage=(total===0
-      ?'Pemeriksaan wilayah selesai. Belum ada record non-demo pada modul SAD '+moduleCfg.title+'. '
-      :'Pemeriksaan wilayah selesai: '+total+' record non-demo pada modul SAD '+moduleCfg.title+'. ')
-      +sourceText+' Modul SAD yang lain tetap membaca tabel domain masing-masing; sumber RT/RW tidak diperlakukan sebagai data perangkat desa/keuangan/surat.'+summaryError;
+    scopeRefreshMessage='Wilayah diperiksa: '+(context.territory_name||context.territory_id)+'. Daftar modul '+(cfg[key]?.title||key)+' telah dimuat ulang sesuai organisasi dan wilayah aktif. '+sourceText+summaryError;
     await listModule(key);
     const status=document.getElementById('scopeLoadStatus');
-    if(status){status.className='notice '+(summaryError?'danger':(total===0?'':'success'));status.textContent=scopeRefreshMessage;}
+    if(status){status.className='notice '+(summaryError?'danger':'success');status.textContent=scopeRefreshMessage;}
     document.querySelector('.tablewrap')?.scrollIntoView({behavior:'smooth',block:'start'});
    }catch(e){
+    scopeRefreshMessage='';
     const currentContent=document.getElementById('content');
     let notice=document.getElementById('scopeLoadStatus');
     if(!notice){notice=document.createElement('div');notice.id='scopeLoadStatus';currentContent.prepend(notice);}
@@ -203,7 +196,7 @@ async function listModule(key){
     if(refreshedButton){
      refreshedButton.disabled=false;refreshedButton.dataset.busy='0';
      const refreshedSmall=refreshedButton.querySelector('small:last-child');
-     if(refreshedSmall)refreshedSmall.textContent='↻ Klik untuk memuat ulang modul dan memeriksa data RT/RW CONNECT pada wilayah ini.';
+     if(refreshedSmall)refreshedSmall.textContent='↻ Klik untuk memuat ulang daftar modul dan memeriksa ringkasan RT/RW CONNECT pada wilayah ini.';
     }
    }
  };
