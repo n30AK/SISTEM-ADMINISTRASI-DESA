@@ -41,3 +41,10 @@ jobs:
           grep -q 'my_context' database/migrations/20261008210000_harden_context_security.sql
           grep -q 'status' database/migrations/20261008235000_harden_service_request_workflow.sql
           grep -q 'event_type' database/migrations/20261008234000_harden_population_events_workflow.sql
+          test -s docs/integrations/JOLIE-SAD-ECONOMIC-DATA-CONTRACT.md
+          test -s database/migrations/20261009020000_create_jolie_economic_evidence_inbox.sql
+          test -s supabase/functions/economic-evidence-ingest/index.ts
+          grep -q 'JOLIE_INTEGRATION_HMAC_SECRET' supabase/functions/economic-evidence-ingest/index.ts
+          grep -q 'TENANT_MAPPING_NOT_APPROVED' supabase/functions/economic-evidence-ingest/index.ts
+          grep -q 'EVENT_ID_PAYLOAD_CONFLICT' supabase/functions/economic-evidence-ingest/index.ts
+          grep -q 'authenticated' database/migrations/20261009020000_create_jolie_economic_evidence_inbox.sql
