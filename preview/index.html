@@ -256,7 +256,7 @@ async function economicEvidenceCenter(){
   notice.textContent=items.length+' bukti ekonomi pada ruang lingkup akun aktif.';
   if(!items.length){table.innerHTML='<p class="muted">Belum ada bukti untuk filter ini. Endpoint tetap tertutup sampai mapping Jolie disetujui.</p>';return}
   table.innerHTML='<table><thead><tr><th>Periode</th><th>Indikator</th><th>Nilai</th><th>Tenant sumber</th><th>Status</th><th>Bukti & tindakan</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.period_start)+' — '+esc(x.period_end)+'</td><td>'+esc(x.metric_code)+'<br><small>'+esc(x.aggregation_scope)+'</small></td><td>'+esc(x.metric_value)+' '+esc(x.metric_unit)+(x.currency?' ('+esc(x.currency)+')':'')+'</td><td>'+esc(x.source_tenant_ref)+'<br><small>'+esc(x.target_territory_ref)+'</small></td><td><span class="statuspill">'+esc(x.status)+'</span><br><small>'+esc(x.reviewed_at||'Belum ditinjau')+'</small></td><td><small>Referensi bukti: '+esc((x.evidence||[]).map(e=>e.evidence_ref+' · '+e.kind).join(', ')||'Tidak ada lampiran')+'</small><br><small>Hash payload: '+esc((x.payload_sha256||'').slice(0,16))+'…</small><div class="actions"><button class="btn" data-review="'+esc(x.id)+'" data-next="under_review">Periksa</button><button class="btn primary" data-review="'+esc(x.id)+'" data-next="verified">Verifikasi</button><button class="btn danger" data-review="'+esc(x.id)+'" data-next="rejected">Tolak</button></div><small>'+esc(x.review_notes||'Belum ada catatan pemeriksa')+'</small></td></tr>').join('')+'</tbody></table>';
-  table.querySelectorAll('[data-review]').forEach(btn=>btn.addEventListener('click',async()=>{
+  if(!can('workflow.review')&&!can('workflow.verify'))table.querySelectorAll('[data-review]').forEach(btn=>btn.remove());\n  table.querySelectorAll('[data-review]').forEach(btn=>btn.addEventListener('click',async()=>{
    const next=btn.dataset.next;
    const promptText=next==='verified'?'Catatan verifikasi (wajib, min. 5 karakter):':next==='rejected'?'Alasan penolakan (wajib, min. 5 karakter):':'Catatan pemeriksaan (wajib, min. 5 karakter):';
    const notes=window.prompt(promptText);
@@ -318,7 +318,7 @@ async function pengaturanDesa(){
         <p id="cfg_msg" class="muted"></p>
       </div>
     </section>`;
-  document.getElementById('cfg_save').onclick=async()=>{
+  const cfgSaveButton=document.getElementById('cfg_save');if(!can(current.id?'data.update':'data.create'))cfgSaveButton?.remove();if(cfgSaveButton)cfgSaveButton.onclick=async()=>{
     const msg=document.getElementById('cfg_msg'); msg.textContent='Menyimpan…';
     const identity={village_name:cfg_village_name.value.trim(),village_code:cfg_village_code.value.trim(),district:cfg_district.value.trim(),regency:cfg_regency.value.trim(),province:cfg_province.value.trim(),postal_code:cfg_postal_code.value.trim(),address:cfg_address.value.trim(),phone:cfg_phone.value.trim(),email:cfg_email.value.trim(),website:cfg_website.value.trim()};
     const government={head_name:cfg_head_name.value.trim(),secretary_name:cfg_secretary_name.value.trim(),bpd_head_name:cfg_bpd_head_name.value.trim()};
@@ -355,7 +355,7 @@ async function governanceData(){
  let h='<div class="notice"><b>Restore Center.</b> Data yang diarsipkan tidak dihapus permanen. Pemulihan tetap dicatat dan dibatasi organisasi serta wilayah aktif.</div><section class="grid">';
  for(const t of tables){const {data,error}=await sb.schema('village').from(t).select('*').not('deleted_at','is',null).order('deleted_at',{ascending:false}).limit(20);h+='<div class="card"><span>'+esc(t.toUpperCase())+'</span><strong>Data Terarsip: '+((data||[]).length)+'</strong><small>'+(error?'Gagal memuat: '+esc(error.message):'Menampilkan arsip terbaru pada wilayah aktif.')+'</small>'+(data||[]).map(x=>'<div style="margin-top:8px;padding:8px;border:1px solid #e2e8f0;border-radius:7px"><small>ID: '+esc(x.id)+'</small><small>Diarsipkan: '+esc(x.deleted_at)+'</small><button class="btn" data-restore-table="'+t+'" data-restore-id="'+esc(x.id)+'">Pulihkan</button></div>').join('')+'</div>'}
  h+='</section>';document.getElementById('content').innerHTML=h;
- document.querySelectorAll('[data-restore-table]').forEach(b=>b.onclick=async()=>{if(!confirm('Pulihkan data ini?'))return;const {data,error}=await sb.rpc('restore_row',{p_table:b.dataset.restoreTable,p_id:b.dataset.restoreId});if(error||!data){alert(error?.message||'Pemulihan gagal.');return}await governanceData()});
+ if(!can('data.restore'))document.querySelectorAll('[data-restore-table]').forEach(b=>b.remove());document.querySelectorAll('[data-restore-table]').forEach(b=>b.onclick=async()=>{if(!can('data.restore')){alert('Akun tidak memiliki izin pemulihan data.');return}if(!confirm('Pulihkan data ini?'))return;const {data,error}=await sb.schema('village').rpc('restore_row',{p_table:b.dataset.restoreTable,p_id:b.dataset.restoreId});if(error||!data){alert(error?.message||'Pemulihan gagal.');return}await governanceData()});
 }
 async function auditCenter(){
  document.getElementById('title').textContent='Audit & Riwayat';
