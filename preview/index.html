@@ -170,47 +170,57 @@ async function listModule(key){
  document.getElementById('reload').onclick=()=>listModule(key);
  const scopeOpen=document.getElementById('scopeOpen');
  if(scopeOpen){
-  scopeOpen.setAttribute('aria-label','Muat ulang data '+(cfg[key]?.title||'modul')+' untuk wilayah '+(context?.territory_name||'aktif'));
+  scopeOpen.setAttribute('aria-label','Muat ulang '+(cfg[key]?.title||'data')+' untuk organisasi '+(context?.organization_name||'aktif')+' dan wilayah '+(context?.territory_name||'aktif'));
   scopeOpen.setAttribute('aria-live','polite');
   scopeOpen.onclick=async event=>{
    event.preventDefault();
    const card=event.currentTarget;
-   if(card.disabled)return;
+   if(card.dataset.loading==='true')return;
+   card.dataset.loading='true';
    card.disabled=true;
    card.setAttribute('aria-busy','true');
    const originalLabel='↻ Klik untuk memuat ulang daftar modul ini sesuai organisasi dan wilayah aktif.';
    const hint=card.querySelector('small:last-child');
    if(hint)hint.textContent='↻ Sedang memuat data wilayah…';
-   let status=document.getElementById('scopeLoadStatus');
-   if(!status){
-    status=document.createElement('div');
-    status.id='scopeLoadStatus';
-    status.className='notice';
-    status.setAttribute('role','status');
-    document.getElementById('content').prepend(status);
-   }
-   status.textContent='Memuat ulang '+(cfg[key]?.title||'data')+' untuk '+(context?.territory_name||'wilayah aktif')+'…';
+   const showStatus=(message,isError=false)=>{
+    let node=document.getElementById('scopeLoadStatus');
+    if(!node){
+     node=document.createElement('div');
+     node.id='scopeLoadStatus';
+     document.getElementById('content').prepend(node);
+    }
+    node.className=isError?'notice danger':'notice';
+    node.setAttribute(isError?'role':'role',isError?'alert':'status');
+    node.textContent=message;
+    return node;
+   };
+   showStatus('Memeriksa konteks dan memuat ulang '+(cfg[key]?.title||'data')+' untuk '+(context?.territory_name||'wilayah aktif')+'…');
    try{
     await getContext();
-    if(!normalizeScopeId(context?.organization_id)||!normalizeScopeId(context?.territory_id)){
-     status.className='notice danger';
-     status.textContent='Organisasi atau wilayah aktif belum valid. Data tidak dimuat. Periksa penugasan akses administrator.';
+    if(!context||!normalizeScopeId(context.organization_id)||!normalizeScopeId(context.territory_id)){
+     showStatus('Organisasi atau wilayah aktif belum valid. Data tidak dimuat. Periksa role assignment administrator.',true);
      return;
     }
-    scopeRefreshMessage='Pemuatan wilayah berhasil dipicu. Wilayah: '+(context?.territory_name||'aktif')+'. Modul: '+(cfg[key]?.title||'data')+'. Filter organisasi dan wilayah diterapkan.';
-    await listModule(key);
+    scopeRefreshMessage='Permintaan muat ulang diterima untuk wilayah '+(context.territory_name||context.territory_id)+'.';
+    const result=await listModule(key);
+    const orgName=context.organization_name||context.organization_id;
+    const territoryName=context.territory_name||context.territory_id;
+    if(result?.error){
+     showStatus('Gagal memuat '+(cfg[key]?.title||'data')+' untuk '+territoryName+': '+(result.error.message||'kesalahan database'),true);
+    }else if((result?.count??0)===0){
+     showStatus('Pemuatan berhasil. Tidak ada record tersimpan untuk '+(cfg[key]?.title||'modul')+' pada organisasi '+orgName+' dan wilayah '+territoryName+'. Gunakan “＋ Form Baru” untuk memasukkan data resmi.');
+    }else{
+     showStatus('Pemuatan berhasil: '+result.count+' record ditemukan untuk '+(cfg[key]?.title||'modul')+' pada organisasi '+orgName+' dan wilayah '+territoryName+'.');
+    }
+    document.getElementById('scopeLoadStatus')?.scrollIntoView({behavior:'smooth',block:'nearest'});
    }catch(e){
-    const currentStatus=document.getElementById('scopeLoadStatus')||document.createElement('div');
-    currentStatus.id='scopeLoadStatus';
-    currentStatus.className='notice danger';
-    currentStatus.setAttribute('role','alert');
-    currentStatus.textContent='Gagal memuat data wilayah: '+(e?.message||'kesalahan tidak diketahui');
-    if(!currentStatus.isConnected)document.getElementById('content').prepend(currentStatus);
+    showStatus('Gagal memuat data wilayah: '+(e?.message||'kesalahan tidak diketahui'),true);
    }finally{
     scopeRefreshMessage='';
     const current=document.getElementById('scopeOpen');
     if(current){
      current.disabled=false;
+     current.dataset.loading='false';
      current.removeAttribute('aria-busy');
      const currentHint=current.querySelector('small:last-child');
      if(currentHint)currentHint.textContent=originalLabel;
@@ -219,6 +229,7 @@ async function listModule(key){
   };
  }
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
+ return {count:error?null:(count??(data||[]).length),rows:(data||[]).length,error:error||null};
 }
 async function loadServiceOptions(selected=''){
  const {data,error}=await sb.schema('village').from('services').select('id,service_code,service_name,active').is('deleted_at',null).order('service_name',{ascending:true}).limit(200);
