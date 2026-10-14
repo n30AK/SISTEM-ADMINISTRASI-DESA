@@ -177,7 +177,7 @@ async function listModule(key){
   scopeOpen.setAttribute('aria-label','Muat ulang data '+(cfg[key]?.title||'modul')+' untuk '+orgName+' — '+scopeName);
   scopeOpen.setAttribute('aria-live','polite');
   scopeOpen.setAttribute('type','button');
-  scopeOpen.onclick=(event)=>{
+  scopeOpen.onclick=async(event)=>{
    event.preventDefault();
    if(scopeOpen.dataset.loading==='true')return;
    if(!normalizeScopeId(context?.organization_id)||!normalizeScopeId(context?.territory_id)){
@@ -190,14 +190,19 @@ async function listModule(key){
    }
    scopeOpen.dataset.loading='true';
    scopeOpen.setAttribute('aria-busy','true');
-   const hint=scopeOpen.querySelector('small:last-child');
-   if(hint)hint.textContent='↻ Memuat ulang halaman dan mengambil data '+(cfg[key]?.title||'modul')+' untuk '+scopeName+'…';
-   const status=document.getElementById('scopeLoadStatus');
-   if(status){status.className='notice';status.setAttribute('role','status');status.textContent='Memuat ulang data '+(cfg[key]?.title||'modul')+' untuk organisasi '+orgName+' dan wilayah '+scopeName+'…';}
-   const target=new URL(window.location.href);
-   target.searchParams.set('view',key);
-   target.searchParams.set('scopeReload',String(Date.now()));
-   window.location.assign(target.toString());
+   scopeRefreshMessage='Memuat ulang data '+(cfg[key]?.title||'modul')+' untuk organisasi '+orgName+' dan wilayah '+scopeName+'…';
+   try {
+    await listModule(key);
+   } catch(err) {
+    const status=document.getElementById('scopeLoadStatus')||document.createElement('div');
+    status.id='scopeLoadStatus';
+    status.className='notice danger';
+    status.setAttribute('role','alert');
+    status.textContent='Pemuatan data gagal: '+(err?.message||'kesalahan tidak diketahui');
+    document.getElementById('content').prepend(status);
+   } finally {
+    scopeRefreshMessage='';
+   }
   };
  }
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
