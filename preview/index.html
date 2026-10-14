@@ -190,7 +190,7 @@ async function listModule(key){
      document.getElementById('content').prepend(node);
     }
     node.className=isError?'notice danger':'notice';
-    node.setAttribute(isError?'role':'role',isError?'alert':'status');
+    node.setAttribute('role',isError?'alert':'status');
     node.textContent=message;
     return node;
    };
