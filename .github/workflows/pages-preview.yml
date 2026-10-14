@@ -18,6 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate preview JavaScript syntax
+        run: |
+          set -euo pipefail
+          sed -n '/<script type="module">/,/<\/script>/p' preview/index.html | sed '1d;$d' > /tmp/sad-preview.mjs
+          test -s /tmp/sad-preview.mjs
+          node --check /tmp/sad-preview.mjs
       - name: Prepare preview
         run: |
           rm -rf _site
