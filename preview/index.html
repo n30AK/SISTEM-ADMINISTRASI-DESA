@@ -18,7 +18,18 @@
 </main>
 <div id="modal" class="modal hidden"></div>
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+let createClient;
+try {
+ const supabaseModule = await import('https://esm.sh/@supabase/supabase-js@2');
+ createClient = supabaseModule.createClient;
+ if(typeof createClient!=='function')throw new Error('Pustaka Supabase tidak menyediakan createClient.');
+} catch(importError) {
+ const indicator=document.getElementById('connection');
+ if(indicator)indicator.textContent='● GAGAL MEMUAT';
+ const content=document.getElementById('content');
+ if(content)content.innerHTML='<div class="notice danger"><b>Aplikasi belum dapat terhubung.</b><br>Pustaka autentikasi gagal dimuat. Periksa koneksi internet, lalu segarkan halaman. Detail: '+String(importError?.message||'pustaka Supabase tidak tersedia').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))+'</div>';
+ throw importError;
+}
 const URL='https://gzdusguveeeflmlvvmwe.supabase.co';
 const KEY='sb_publishable_nSqPHZf1-1CAJMFNmrpNqA_lafobeV-';
 const sb=createClient(URL,KEY);
@@ -715,5 +726,12 @@ ${[
 </div>
 <div class="panel" style="margin-top:16px;padding:18px"><h3>Jika terjadi masalah</h3><ol style="line-height:1.8;margin-bottom:0"><li>Segarkan halaman dan pastikan sesi login masih aktif.</li><li>Periksa konteks organisasi/wilayah dan hak akses akun.</li><li>Untuk data layanan, periksa status workflow dan catatan audit.</li><li>Untuk integrasi, buka Integrasi RT/RW + GPFFE dan lihat status pemeriksaan.</li><li>Untuk keputusan regulasi, gunakan Regulatory Center atau Tanya AI lalu lakukan verifikasi manusia.</li></ol></div>`;
 const search=document.getElementById('helpSearch');const cards=[...document.querySelectorAll('.help-card')];const filter=()=>{const q=search.value.trim().toLowerCase();cards.forEach(el=>el.style.display=!q||el.dataset.search.toLowerCase().includes(q)?'block':'none')};search.oninput=filter;document.getElementById('helpReset').onclick=()=>{search.value='';filter()}}
-document.getElementById('logout').onclick=async()=>{await sb.auth.signOut();location.reload()};document.getElementById('refresh').onclick=()=>render();render();
+function showBootError(error){
+ const indicator=document.getElementById('connection');
+ if(indicator)indicator.textContent='● GAGAL MEMUAT';
+ const content=document.getElementById('content');
+ if(content)content.innerHTML='<div class="notice danger"><b>Aplikasi gagal memulai sesi.</b><br>Segarkan halaman dan masuk kembali. Jika masalah berlanjut, periksa koneksi Supabase. Detail: '+esc(error?.message||'kesalahan tidak diketahui')+'</div>';
+ console.error('SAD preview initialization failed',error);
+}
+document.getElementById('logout').onclick=async()=>{await sb.auth.signOut();location.reload()};document.getElementById('refresh').onclick=()=>render().catch(showBootError);render().catch(showBootError);
 </script></body></html>
