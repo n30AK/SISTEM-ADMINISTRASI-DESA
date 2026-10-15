@@ -188,7 +188,7 @@ async function listModule(key){
   scopeOpen.setAttribute('aria-label','Muat ulang data '+(cfg[key]?.title||'modul')+' untuk '+orgName+' — '+scopeName);
   scopeOpen.setAttribute('aria-live','polite');
   scopeOpen.setAttribute('type','button');
-  scopeOpen.onclick=(event)=>{
+  scopeOpen.onclick=async(event)=>{
    event.preventDefault();
    if(scopeOpen.dataset.loading==='true')return;
    scopeOpen.dataset.loading='true';
@@ -196,10 +196,20 @@ async function listModule(key){
    scopeOpen.setAttribute('aria-busy','true');
    const hint=scopeOpen.querySelector('small:last-child');
    if(hint)hint.textContent='Memuat ulang data wilayah aktif…';
-   const url=new URL(window.location.href);
-   url.searchParams.set('view',key);
-   url.searchParams.set('scopeReload',String(Date.now()));
-   window.location.assign(url.toString());
+   scopeRefreshMessage='Memuat ulang data '+(cfg[key]?.title||'modul')+' untuk organisasi '+orgName+' dan wilayah '+scopeName+'…';
+   try{
+    await listModule(key);
+   }catch(error){
+    scopeRefreshMessage='Gagal memuat data wilayah: '+(error?.message||'kesalahan tidak diketahui');
+    const status=document.getElementById('scopeLoadStatus');
+    if(status){status.className='notice danger';status.textContent=scopeRefreshMessage;}
+    else{
+     const content=document.getElementById('content');
+     if(content)content.insertAdjacentHTML('afterbegin','<div class="notice danger" role="alert">'+esc(scopeRefreshMessage)+'</div>');
+    }
+   }finally{
+    scopeRefreshMessage='';
+   }
   };
  }
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
