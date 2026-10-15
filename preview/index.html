@@ -188,42 +188,18 @@ async function listModule(key){
   scopeOpen.setAttribute('aria-label','Muat ulang data '+(cfg[key]?.title||'modul')+' untuk '+orgName+' — '+scopeName);
   scopeOpen.setAttribute('aria-live','polite');
   scopeOpen.setAttribute('type','button');
-  scopeOpen.onclick=async(event)=>{
+  scopeOpen.onclick=(event)=>{
    event.preventDefault();
    if(scopeOpen.dataset.loading==='true')return;
    scopeOpen.dataset.loading='true';
-   scopeOpen.setAttribute('aria-busy','true');
    scopeOpen.disabled=true;
-   const showScopeStatus=(message,isError=false)=>{
-    let status=document.getElementById('scopeLoadStatus');
-    if(!status){status=document.createElement('div');status.id='scopeLoadStatus';document.getElementById('content').prepend(status);}
-    status.className='notice '+(isError?'danger':'');
-    status.setAttribute('role',isError?'alert':'status');
-    status.textContent=message;
-   };
-   try {
-    showScopeStatus('Memeriksa ulang konteks organisasi dan wilayah…');
-    await getContext();
-    if(!context||!normalizeScopeId(context.organization_id)||!normalizeScopeId(context.territory_id)){
-     throw new Error('Organisasi atau wilayah aktif belum valid. Periksa role assignment administrator; data tidak dimuat.');
-    }
-    await loadCurrentPermissions();
-    const freshScopeName=context.territory_name||context.territory_id;
-    const freshOrgName=context.organization_name||context.organization_id;
-    scopeRefreshMessage='Memuat ulang data '+(cfg[key]?.title||'modul')+' untuk organisasi '+freshOrgName+' dan wilayah '+freshScopeName+'…';
-    const result=await listModule(key);
-    if(result?.error){
-     showScopeStatus('Gagal memuat data '+(cfg[key]?.title||'modul')+' untuk '+freshScopeName+': '+(result.error.message||'kesalahan database'),true);
-    } else {
-     showScopeStatus('Data wilayah berhasil dimuat ulang. Organisasi: '+freshOrgName+' · Wilayah: '+freshScopeName+' · '+(result?.count??result?.rows??0)+' record. '+((result?.count??result?.rows??0)===0?'Belum ada record tersimpan pada cakupan ini. Gunakan “＋ Form Baru” untuk memasukkan data resmi.':'Daftar di bawah mengikuti cakupan wilayah aktif.'));
-    }
-   } catch(err) {
-    showScopeStatus('Pemuatan data wilayah gagal: '+(err?.message||'kesalahan tidak diketahui'),true);
-   } finally {
-    scopeRefreshMessage='';
-    const activeButton=document.getElementById('scopeOpen');
-    if(activeButton){activeButton.disabled=false;activeButton.dataset.loading='false';activeButton.removeAttribute('aria-busy');}
-   }
+   scopeOpen.setAttribute('aria-busy','true');
+   const hint=scopeOpen.querySelector('small:last-child');
+   if(hint)hint.textContent='Memuat ulang data wilayah aktif…';
+   const url=new URL(window.location.href);
+   url.searchParams.set('view',key);
+   url.searchParams.set('scopeReload',String(Date.now()));
+   window.location.assign(url.toString());
   };
  }
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formModule(key,b.dataset.edit,false));
